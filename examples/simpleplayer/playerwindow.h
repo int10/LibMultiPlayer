@@ -23,6 +23,8 @@
 
 #include <QWidget>
 #include <QtAV>
+#include <QGridLayout>
+#include "PlayerGroup.h"
 
 QT_BEGIN_NAMESPACE
 class QSlider;
@@ -44,8 +46,10 @@ private Q_SLOTS:
     void updateSliderUnit();
 
 private:
-    QtAV::VideoOutput *m_vo;
-    QtAV::AVPlayer *m_player;
+//    QtAV::VideoOutput *m_vo;
+//    QtAV::AVPlayer *m_player;
+	QGridLayout *vmain;
+	PlayerGroup *m_playergroup;
     QSlider *m_slider;
     QPushButton *m_openBtn;
     QPushButton *m_playBtn;

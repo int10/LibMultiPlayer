@@ -23,10 +23,10 @@ greaterThan(QT_MAJOR_VERSION, 4) {
   SUBDIRS += examples
   examples.depends += libqtav
 }
-!cross_compile:!no-tests {
-  SUBDIRS += tests
-  tests.depends += libqtav libqtavwidgets
-}
+#!cross_compile:!no-tests {
+#  SUBDIRS += tests
+#  tests.depends += libqtav libqtavwidgets
+#}
 OTHER_FILES += README.md TODO.txt Changelog
 OTHER_FILES += templates/vo.h templates/vo.cpp templates/COPYRIGHT.h templates/mkclass.sh
 OTHER_FILES += \

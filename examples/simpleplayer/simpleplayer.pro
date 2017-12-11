@@ -8,3 +8,9 @@ include($$PROJECTROOT/widgets/libQtAVWidgets.pri)
 preparePaths($$OUT_PWD/../../out)
 
 include(src.pri)
+
+HEADERS += \
+    PlayerGroup.h
+
+SOURCES += \
+    PlayerGroup.cpp

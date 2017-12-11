@@ -116,7 +116,7 @@ AVPlayer::~AVPlayer()
 
 AVClock* AVPlayer::masterClock()
 {
-    return d->clock;
+	return d->m_clock;
 }
 
 void AVPlayer::addVideoRenderer(VideoRenderer *renderer)
@@ -590,7 +590,7 @@ void AVPlayer::pause(bool p)
         d->athread->pause(p);
     if (d->vthread)
         d->vthread->pause(p);
-    d->clock->pause(p);
+	d->m_clock->pause(p);
 
     d->state = p ? PausedState : PlayingState;
     Q_EMIT stateChanged(d->state);
@@ -842,7 +842,7 @@ bool AVPlayer::isSeekable() const
 qint64 AVPlayer::position() const
 {
     // TODO: videoTime()?
-    const qint64 pts = d->clock->value()*1000.0;
+	const qint64 pts = d->m_clock->value()*1000.0;
     if (relativeTimeMode())
         return pts - absoluteMediaStartPosition();
     return pts;
@@ -892,7 +892,7 @@ bool AVPlayer::setExternalAudio(const QString &file)
 {
     // TODO: update statistics
     int stream = currentAudioStream();
-	if (!isLoaded() && stream < 0)
+    if (!isLoaded() && stream < 0)
         stream = 0;
     return setAudioStream(file, stream);
 }
@@ -1160,6 +1160,12 @@ bool AVPlayer::load()
     loaderThreadPool()->start(new LoadWorker(this));
     return true;
 }
+void AVPlayer::play(const QString &path, AVClock *clock, int streamtype)
+{
+	d->setClock(clock);
+	d->setStreamType(streamtype);
+	play(path);
+}
 
 void AVPlayer::play()
 {
@@ -1213,20 +1219,22 @@ void AVPlayer::playInternal()
         qWarning("load failed");
         return;
     }
-    // setup clock before avthread.start() becuase avthreads use clock. after avthreads setup because of ao check
-    masterClock()->reset();
-    // TODO: add isVideo() or hasVideo()?
-    if (masterClock()->isClockAuto()) {
-        qDebug("auto select clock: audio > external");
-        if (!d->demuxer.audioCodecContext() || !d->ao || !d->ao->isOpen() || !d->athread) {
-            masterClock()->setClockType(AVClock::ExternalClock);
-            qDebug("No audio found or audio not supported. Using ExternalClock.");
-        } else {
-            qDebug("Using AudioClock");
-            masterClock()->setClockType(AVClock::AudioClock);
-        }
-    }
-    masterClock()->setInitialValue((double)absoluteMediaStartPosition()/1000.0);
+	if(d->m_streamtype == 0) {
+		// setup clock before avthread.start() becuase avthreads use clock. after avthreads setup because of ao check
+		masterClock()->reset();
+		// TODO: add isVideo() or hasVideo()?
+		if (masterClock()->isClockAuto()) {
+			qDebug("auto select clock: audio > external");
+			if (!d->demuxer.audioCodecContext() || !d->ao || !d->ao->isOpen() || !d->athread) {
+				masterClock()->setClockType(AVClock::ExternalClock);
+				qDebug("No audio found or audio not supported. Using ExternalClock.");
+			} else {
+				qDebug("Using AudioClock");
+				masterClock()->setClockType(AVClock::AudioClock);
+			}
+		}
+		masterClock()->setInitialValue((double)absoluteMediaStartPosition()/1000.0);
+	}
     // from previous play()
     if (d->demuxer.audioCodecContext() && d->athread) {
         qDebug("Starting audio thread...");
@@ -1355,7 +1363,9 @@ void AVPlayer::onStarted()
         if (d->ao && d->ao->isAvailable()) {
             d->ao->setSpeed(d->speed);
         }
-        masterClock()->setSpeed(d->speed);
+		if(d->m_streamtype == 0) {
+			masterClock()->setSpeed(d->speed);
+		}
     } else {
         d->applyFrameRate();
     }
@@ -1547,7 +1557,7 @@ void AVPlayer::stepForward()
 
 void AVPlayer::stepBackward()
 {
-    d->clock->pause(true);
+	d->m_clock->pause(true);
     d->state = PausedState;
     Q_EMIT stateChanged(d->state);
     Q_EMIT paused(true);
@@ -1641,7 +1651,8 @@ int AVPlayer::bufferValue() const
 
 void AVPlayer::updateClock(qint64 msecs)
 {
-    d->clock->updateExternalClock(msecs);
+	if(d->m_streamtype == 0)
+		d->m_clock->updateExternalClock(msecs);
 }
 
 int AVPlayer::brightness() const

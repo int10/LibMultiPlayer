@@ -4,10 +4,10 @@ SUBDIRS = common
 !android:!ios:!winrt {
 #  SUBDIRS += audiopipeline
 !no-widgets {
-#  SUBDIRS += \
+  SUBDIRS += \
 #    sharedoutput \
 #    simpletranscode \
-#    simpleplayer \
+    simpleplayer
 #    player \
 #    filters \
 #    framereader \
