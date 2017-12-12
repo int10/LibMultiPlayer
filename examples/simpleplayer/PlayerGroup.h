@@ -11,14 +11,15 @@ public:
 	PlayerGroup(QStringList audiolist, QStringList videolist);
 	~PlayerGroup();
 
-	void Play();
+	void Play(int index);
 	void Pause();
 	void Stop();
-	void Seek(int value);
+	void Seek(qint64 value);
 	bool IsPlaying();
 	int notifyInterval();
 	qint64 position();
 	qint64 duration();
+	void SwitchAudio(int index);
 	QList<QtAV::VideoOutput *> GetVideoOutput();
 
 signals:
@@ -38,6 +39,7 @@ private:
 	QtAV::AVPlayer *m_audioplayer;
 	QtAV::AVClock m_mainclock;
 	bool m_isplaying;
+	int m_curaudioindex;
 };
 
 #endif // PLAYERGROUP_H

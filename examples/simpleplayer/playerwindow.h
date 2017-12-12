@@ -44,6 +44,11 @@ private Q_SLOTS:
     void updateSlider(qint64 value);
     void updateSlider();
     void updateSliderUnit();
+	void Slot_Audio1();
+	void Slot_Audio2();
+	void Slot_Audio3();
+	void Slot_Audio4();
+
 
 private:
 //    QtAV::VideoOutput *m_vo;
@@ -54,7 +59,13 @@ private:
     QPushButton *m_openBtn;
     QPushButton *m_playBtn;
     QPushButton *m_stopBtn;
+	QPushButton *m_audio1;
+	QPushButton *m_audio2;
+	QPushButton *m_audio3;
+	QPushButton *m_audio4;
     int m_unit;
+	int m_index;
+	qint64 m_position;
 };
 
 #endif // PLAYERWINDOW_H

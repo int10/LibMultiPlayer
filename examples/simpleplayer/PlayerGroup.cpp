@@ -35,11 +35,17 @@ PlayerGroup::~PlayerGroup()
 	m_volist.clear();
 }
 
-void PlayerGroup::Play()
+void PlayerGroup::Play(int index)
 {
-	m_audioplayer->play(m_audiolist.at(0), &m_mainclock, 0);
+//	m_audioplayer->play(m_audiolist.at(index), &m_mainclock, 0);
+	m_curaudioindex = 0;
 	for(int i = 0; i < m_videolist.size(); i++) {
-		m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 1);
+		if(0 == i) {
+			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 0);
+			m_playerlist.at(i)->setAudioStream(m_audiolist.at(index));
+		} else {
+			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 1);
+		}
 	}
 	m_isplaying = true;
 }
@@ -54,14 +60,35 @@ void PlayerGroup::Pause()
 
 }
 
-void PlayerGroup::Stop()
+void PlayerGroup::SwitchAudio(int index)
 {
+	if(index >= m_audiolist.size() || index == m_curaudioindex){
+		return;
+	}
 
+	m_curaudioindex = index;
+	m_playerlist.at(0)->setAudioStream(m_audiolist.at(index));
+//	qint64 pos = m_audioplayer->position();
+//	m_audioplayer->stop();
+
+//	m_audioplayer->play(m_audiolist.at(index), &m_mainclock, 0);
+//	Seek(pos);
 }
 
-void PlayerGroup::Seek(int value)
+void PlayerGroup::Stop()
 {
+	foreach(QtAV::AVPlayer * player, m_playerlist){
+		player->stop();
+	}
+	m_audioplayer->stop();
+}
 
+void PlayerGroup::Seek(qint64 value)
+{
+	m_audioplayer->seek(value);
+	foreach(QtAV::AVPlayer * player, m_playerlist){
+		player->seek(value);
+	}
 }
 
 void PlayerGroup::updateSliderUnit()

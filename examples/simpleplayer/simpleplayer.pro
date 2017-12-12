@@ -10,7 +10,9 @@ preparePaths($$OUT_PWD/../../out)
 include(src.pri)
 
 HEADERS += \
-    PlayerGroup.h
+    PlayerGroup.h \
+    ConfigXml.h
 
 SOURCES += \
-    PlayerGroup.cpp
+    PlayerGroup.cpp \
+    ConfigXml.cpp
