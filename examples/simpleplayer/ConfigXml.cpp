@@ -25,6 +25,7 @@ bool ConfigXml::ParseXml(QString filepath, QList<sAudioInfo> &audioinfolist, QLi
 	QRegExp rxorder("<display_order>(.+)</display_order>");
 
 	rxvideo.setMinimal(true);
+	rxaudio.setMinimal(true);
 	int index = 0;
 	while(1) {
 		index = rxvideo.indexIn(xmlstr, index);
@@ -45,6 +46,7 @@ bool ConfigXml::ParseXml(QString filepath, QList<sAudioInfo> &audioinfolist, QLi
 			videoinfolist.append(vinfo);
 		}
 	}
+	index = 0;
 	while(1) {
 		index = rxaudio.indexIn(xmlstr, index);
 		if(index == -1) break;
@@ -61,4 +63,8 @@ bool ConfigXml::ParseXml(QString filepath, QList<sAudioInfo> &audioinfolist, QLi
 			audioinfolist.append(ainfo);
 		}
 	}
+	if(audioinfolist.size() && videoinfolist.size())
+		return true;
+	else
+		return false;
 }

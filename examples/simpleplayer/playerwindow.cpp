@@ -34,7 +34,15 @@ PlayerWindow::PlayerWindow(QWidget *parent) : QWidget(parent)
 	ConfigXml xml;
 	QList<sAudioInfo> audioinfolist;
 	QList<sVideoInfo> videoinfolist;
-	xml.ParseXml("E:/SysFolder/Desktop/config.xml", audioinfolist, videoinfolist);
+	xml.ParseXml("d:/SysFolder/Desktop/config.xml", audioinfolist, videoinfolist);
+
+	foreach(sAudioInfo a, audioinfolist) {
+		qDebug()<<a.file<<a.desc;
+	}
+	foreach(sVideoInfo v, videoinfolist) {
+		qDebug()<<v.file<<v.desc<<v.order;
+	}
+
 
     m_unit = 1000;
 	setWindowTitle(QString::fromLatin1("multi player"));
