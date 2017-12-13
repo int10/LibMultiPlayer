@@ -19,7 +19,9 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist)
 	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
 	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
 	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
-
+//	connect(m_playerlist.at(0), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+//	connect(m_playerlist.at(0), SIGNAL(started()), SLOT(updateSlider()));
+//	connect(m_playerlist.at(0), SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
 }
 
 PlayerGroup::~PlayerGroup()
@@ -37,12 +39,12 @@ PlayerGroup::~PlayerGroup()
 
 void PlayerGroup::Play(int index)
 {
-//	m_audioplayer->play(m_audiolist.at(index), &m_mainclock, 0);
+	m_audioplayer->play(m_audiolist.at(index), &m_mainclock, index);
 	m_curaudioindex = 0;
 	for(int i = 0; i < m_videolist.size(); i++) {
 		if(0 == i) {
 			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 0);
-			m_playerlist.at(i)->setAudioStream(m_audiolist.at(index));
+//			m_playerlist.at(i)->setAudioStream(m_audiolist.at(index));
 		} else {
 			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 1);
 		}
@@ -109,16 +111,19 @@ void PlayerGroup::updateSlider()
 int PlayerGroup::notifyInterval()
 {
 	return m_audioplayer->notifyInterval();
+//	return m_playerlist.at(0)->notifyInterval();
 }
 
 qint64 PlayerGroup::position()
 {
 	return m_audioplayer->position();
+//	return m_playerlist.at(0)->position();
 }
 
 qint64 PlayerGroup::duration()
 {
 	return m_audioplayer->duration();
+//	return m_playerlist.at(0)->duration();
 }
 
 QList<QtAV::VideoOutput *> PlayerGroup::GetVideoOutput()

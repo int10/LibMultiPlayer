@@ -24,6 +24,10 @@
 #include <QWidget>
 #include <QtAV>
 #include <QGridLayout>
+#include <QButtonGroup>
+#include <QDragEnterEvent>
+#include <QMimeData>
+#include <QDropEvent>
 #include "PlayerGroup.h"
 
 QT_BEGIN_NAMESPACE
@@ -40,16 +44,16 @@ public Q_SLOTS:
     void seekBySlider(int value);
     void seekBySlider();
     void playPause();
+	void Play(QString xmlfilename);
 private Q_SLOTS:
     void updateSlider(qint64 value);
     void updateSlider();
     void updateSliderUnit();
-	void Slot_Audio1();
-	void Slot_Audio2();
-	void Slot_Audio3();
-	void Slot_Audio4();
+	void Slot_ClickBtnGroup(int id);
 
-
+protected:
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 private:
 //    QtAV::VideoOutput *m_vo;
 //    QtAV::AVPlayer *m_player;
@@ -59,10 +63,7 @@ private:
     QPushButton *m_openBtn;
     QPushButton *m_playBtn;
     QPushButton *m_stopBtn;
-	QPushButton *m_audio1;
-	QPushButton *m_audio2;
-	QPushButton *m_audio3;
-	QPushButton *m_audio4;
+	QButtonGroup *m_audiobtngroup;
     int m_unit;
 	int m_index;
 	qint64 m_position;

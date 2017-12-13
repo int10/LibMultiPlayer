@@ -24,28 +24,16 @@
 #include <QLayout>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QButtonGroup>
 #include "ConfigXml.h"
 
 using namespace QtAV;
 
 PlayerWindow::PlayerWindow(QWidget *parent) : QWidget(parent)
 {
-
-	ConfigXml xml;
-	QList<sAudioInfo> audioinfolist;
-	QList<sVideoInfo> videoinfolist;
-	xml.ParseXml("d:/SysFolder/Desktop/config.xml", audioinfolist, videoinfolist);
-
-	foreach(sAudioInfo a, audioinfolist) {
-		qDebug()<<a.file<<a.desc;
-	}
-	foreach(sVideoInfo v, videoinfolist) {
-		qDebug()<<v.file<<v.desc<<v.order;
-	}
-
-
     m_unit = 1000;
 	setWindowTitle(QString::fromLatin1("multi player"));
+	setMinimumSize(800, 600);
 //	m_player = new AVPlayer(this);
     QVBoxLayout *vl = new QVBoxLayout();
     setLayout(vl);
@@ -58,7 +46,6 @@ PlayerWindow::PlayerWindow(QWidget *parent) : QWidget(parent)
 //	m_player->setRenderer(m_vo);
 	//vl->addWidget(m_vo->widget());
 	vl->addLayout(vmain);
-//	vmain->addWidget(m_vo->widget());
     m_slider = new QSlider();
     m_slider->setOrientation(Qt::Horizontal);
     connect(m_slider, SIGNAL(sliderMoved(int)), SLOT(seekBySlider(int)));
@@ -73,68 +60,41 @@ PlayerWindow::PlayerWindow(QWidget *parent) : QWidget(parent)
     m_openBtn = new QPushButton(tr("Open"));
     m_playBtn = new QPushButton(tr("Play/Pause"));
     m_stopBtn = new QPushButton(tr("Stop"));
-	m_audio1 = new QPushButton(tr("audio1"));
-	m_audio2 = new QPushButton(tr("audio2"));
-	m_audio3 = new QPushButton(tr("audio3"));
-	m_audio4 = new QPushButton(tr("audio4"));
+
+	m_audiobtngroup = new QButtonGroup(this);
+	m_audiobtngroup->addButton(new QPushButton(tr("audio0")), 0);
+	m_audiobtngroup->addButton(new QPushButton(tr("audio1")), 1);
+	m_audiobtngroup->addButton(new QPushButton(tr("audio2")), 2);
+	m_audiobtngroup->addButton(new QPushButton(tr("audio3")), 3);
 
     hb->addWidget(m_openBtn);
     hb->addWidget(m_playBtn);
     hb->addWidget(m_stopBtn);
-	hb->addWidget(m_audio1);
-	hb->addWidget(m_audio2);
-	hb->addWidget(m_audio3);
-	hb->addWidget(m_audio4);
+
+	foreach(QAbstractButton * btn, m_audiobtngroup->buttons()){
+		hb->addWidget(btn);
+		btn->setVisible(false);
+	}
+
     connect(m_openBtn, SIGNAL(clicked()), SLOT(openMedia()));
     connect(m_playBtn, SIGNAL(clicked()), SLOT(playPause()));
 //	connect(m_stopBtn, SIGNAL(clicked()), m_player, SLOT(stop()));
 
-	connect(m_audio1, SIGNAL(clicked()), SLOT(Slot_Audio1()));
-	connect(m_audio2, SIGNAL(clicked()), SLOT(Slot_Audio2()));
-	connect(m_audio3, SIGNAL(clicked()), SLOT(Slot_Audio3()));
-	connect(m_audio4, SIGNAL(clicked()), SLOT(Slot_Audio4()));
-
+	connect(m_audiobtngroup, SIGNAL(buttonClicked(int)), SLOT(Slot_ClickBtnGroup(int)));
 
 	m_index = 0;
-
+	m_playergroup = NULL;
+	setAcceptDrops(true);
 }
 
 void PlayerWindow::openMedia()
 {
 
-//    QString file = QFileDialog::getOpenFileName(0, tr("Open a video"));
-//    if (file.isEmpty())
-//        return;
+	QString file = QFileDialog::getOpenFileName(0, tr("Open a xml"), "", "xml file(*.xml)");
+	if (file.isEmpty())
+		return;
 //    m_player->play(file);
-	QStringList audiolist;
-//	audiolist.append("E:/SysFolder/Desktop/Player/part/1_20170615171110884.mp3");
-//	audiolist.append("E:/SysFolder/Desktop/Player/part/2_20170615171110905.WAV");
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/1_20171017170849.mp3");
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/2_20171017170849.mp3");
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/3_20171017170849.mp3");
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/4_20171017170849.mp3");
-	QStringList videolist;
-//	videolist.append("E:/SysFolder/Desktop/Player/part/Court_1-1-20170615171110757.asf");
-//	videolist.append("E:/SysFolder/Desktop/Player/part/Court_1-4-20170615171110880.asf");
-//	videolist.append("E:/SysFolder/Desktop/Player/part/Court_1-5-20170615171110753.asf");
-
-
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-1-20171017170848966.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-2-20171017170849018.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-3-20171017170849174.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-4-20171017170849207.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-5-20171017170848962.asf");
-
-	m_playergroup = new PlayerGroup(audiolist, videolist);
-	QList<QtAV::VideoOutput *> output = m_playergroup->GetVideoOutput();
-	for(int i = 0; i < output.size(); i++){
-		vmain->addWidget(output.at(i)->widget(), (i < 3)?0:1, i%3);
-	}
-
-	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
-	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
-	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
-	m_playergroup->Play(m_index);
+	Play(file);
 }
 
 void PlayerWindow::seekBySlider(int value)
@@ -180,22 +140,93 @@ void PlayerWindow::updateSliderUnit()
 	updateSlider();
 }
 
-void PlayerWindow::Slot_Audio1()
+void PlayerWindow::Slot_ClickBtnGroup(int id)
 {
-	m_playergroup->SwitchAudio(0);
+	m_playergroup->SwitchAudio(id);
 }
 
-void PlayerWindow::Slot_Audio2()
+void PlayerWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-	m_playergroup->SwitchAudio(1);
+	if (event->mimeData()->hasFormat("text/uri-list"))
+	{
+		event->acceptProposedAction();
+	}
 }
 
-void PlayerWindow::Slot_Audio3()
+void PlayerWindow::dropEvent(QDropEvent *event)
 {
-	m_playergroup->SwitchAudio(2);
+	QList<QUrl> urls = event->mimeData()->urls();
+
+	if (urls.isEmpty()) {
+		return;
+	}
+
+	QString fileName = urls.first().toLocalFile();
+	if (fileName.isEmpty()) {
+		return;
+	}
+	if(!fileName.endsWith(".xml")){
+		return;
+	}
+	Play(fileName);
 }
 
-void PlayerWindow::Slot_Audio4()
+void PlayerWindow::Play(QString xmlfilename)
 {
-	m_playergroup->SwitchAudio(3);
+	QFileInfo fileinfo(xmlfilename);
+	QList<sAudioInfo> audiolist;
+	QList<sVideoInfo> videolist;
+	ConfigXml xml;
+	if(!xml.ParseXml(xmlfilename, audiolist, videolist)) {
+		QMessageBox::critical(this, "error", "Can't parse the xml!");
+		return;
+	}
+
+	QStringList audiofilelist;
+	QStringList videofilelist;
+#if 0
+	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/1_20171017170849.mp3");
+	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/2_20171017170849.mp3");
+	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/3_20171017170849.mp3");
+	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/4_20171017170849.mp3");
+
+	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-1-20171017170848966.asf");
+	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-2-20171017170849018.asf");
+	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-3-20171017170849174.asf");
+	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-4-20171017170849207.asf");
+	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-5-20171017170848962.asf");
+#else
+	foreach(sAudioInfo ainfo, audiolist) {
+		audiofilelist.append(fileinfo.absolutePath() + "/" + ainfo.file);
+	}
+	foreach(sVideoInfo vinfo, videolist) {
+		videofilelist.append(fileinfo.absolutePath() + "/" + vinfo.file);
+	}
+
+#endif
+	if(m_playergroup) {
+		m_playergroup->Stop();
+		delete m_playergroup;
+	}
+	m_playergroup = new PlayerGroup(audiofilelist, videofilelist);
+	QList<QtAV::VideoOutput *> output = m_playergroup->GetVideoOutput();
+	for(int i = 0; i < output.size(); i++){
+		vmain->addWidget(output.at(i)->widget(), (i < 3)?0:1, i%3);
+	}
+
+	QList<QAbstractButton*> buttons = m_audiobtngroup->buttons();
+	int i;
+	for(i = 0; i < audiolist.size(); i++){
+		buttons.at(i)->setText(audiolist.at(i).desc);
+		buttons.at(i)->setVisible(true);
+	}
+	for(i; i < buttons.size(); i++) {//hide unuse button
+		buttons.at(i)->setVisible(false);
+	}
+
+	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
+	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
+	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
+	m_playergroup->Play(m_index);
+
 }
