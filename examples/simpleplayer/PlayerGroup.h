@@ -2,6 +2,7 @@
 #define PLAYERGROUP_H
 #include <QStringList>
 #include <QList>
+#include <QTimer>
 #include "QtAV.h"
 
 class PlayerGroup : public QObject
@@ -30,6 +31,7 @@ private slots:
 	void updateSliderUnit();
 	void updateSlider(qint64 value);
 	void updateSlider();
+	void timeoutHandle();
 
 private:
 	QStringList m_audiolist;
@@ -38,6 +40,7 @@ private:
 	QList<QtAV::AVPlayer *> m_playerlist;
 	QtAV::AVPlayer *m_audioplayer;
 	QtAV::AVClock m_mainclock;
+	QTimer * m_synctimer;
 	bool m_isplaying;
 	int m_curaudioindex;
 };

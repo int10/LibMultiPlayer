@@ -32,9 +32,10 @@ public:
 	void play(const QString& file) {
         setTitle(file);
 		//player.setFile(file);
-		player.setFile("E:/SysFolder/Desktop/Court_1-1-20170615171110757.asf");
-//		player.setExternalAudio("E:/SysFolder/Desktop/1_20170615171110884.mp3");
-		player.setExternalAudio("E:/SysFolder/Desktop/bb.mp3");
+//		player.setFile("E:/SysFolder/Desktop/Player/part/Court_1-1-20170615171110757.asf");
+//		player.setExternalAudio("E:/SysFolder/Desktop/Player/part/1_20170615171110884.mp3");
+		player.setFile("E:/SysFolder/Desktop/Court_1_20171017/1_20171017170849.mp3");
+//		player.setExternalAudio("E:/SysFolder/Desktop/bb.mp3");
         player.play();
     }
 	void play(const QStringList& filelist) {
@@ -75,13 +76,14 @@ private:
 int main(int argc, char *argv[])
 {
     QGuiApplication a(argc, argv);
-	if (a.arguments().size() < 3) {
-		//qDebug("./window file");
-		return 0;
-	}
+//	if (a.arguments().size() < 3) {
+//		//qDebug("./window file");
+//		return 0;
+//	}
     PlayerWindow win;
     win.resize(600, 400);
     win.show();
-	win.play(a.arguments());
+	//win.play(a.arguments());
+	win.play("");
     return a.exec();
 }
