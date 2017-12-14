@@ -12,12 +12,12 @@ libqtav.file = src/libQtAV.pro
 }
 greaterThan(QT_MAJOR_VERSION, 4) {
   # qtHaveModule does not exist in Qt5.0
-  isEqual(QT_MINOR_VERSION, 0)|qtHaveModule(quick) {
-    SUBDIRS += libqmlav
-    libqmlav.file = qml/libQmlAV.pro
-    libqmlav.depends += libqtav
-    examples.depends += libqmlav
-  }
+#  isEqual(QT_MINOR_VERSION, 0)|qtHaveModule(quick) {
+#    SUBDIRS += libqmlav
+#    libqmlav.file = qml/libQmlAV.pro
+#    libqmlav.depends += libqtav
+#    examples.depends += libqmlav
+#  }
 }
 !no-examples {
   SUBDIRS += examples

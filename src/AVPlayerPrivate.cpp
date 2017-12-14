@@ -89,7 +89,7 @@ AVPlayer::Private::Private()
     , buffer_mode(BufferPackets)
     , buffer_value(-1)
     , read_thread(0)
-	, m_clock(new AVClock(AVClock::AudioClock))
+    , clock(new AVClock(AVClock::AudioClock))
     , vo(0)
     , ao(new AudioOutput())
     , adec(0)
@@ -159,10 +159,10 @@ AVPlayer::Private::~Private() {
         delete vcapture;
         vcapture = 0;
     }
-//    if (clock) {
-//        delete clock;
-//        clock = 0;
-//    }
+    if (clock) {
+        delete clock;
+        clock = 0;
+    }
     if (read_thread) {
         delete read_thread;
         read_thread = 0;
@@ -201,30 +201,22 @@ void AVPlayer::Private::applyFrameRate()
     }
     qreal r = speed;
     if (force) {
-		if(m_streamtype == 0) {
-		m_clock->setClockAuto(false);
+        clock->setClockAuto(false);
         // vfps>0: force video fps to vfps. clock must be external
-		m_clock->setClockType(vfps > 0 ? AVClock::VideoClock : AVClock::ExternalClock);
-		}
+        clock->setClockType(vfps > 0 ? AVClock::VideoClock : AVClock::ExternalClock);
         vthread->setFrameRate(vfps);
         if (statistics.video.frame_rate > 0)
             r = qAbs(qreal(vfps))/statistics.video.frame_rate;
     } else {
-		if(m_streamtype == 0){
-			m_clock->setClockAuto(true);
-			m_clock->setClockType(athread && ao->isOpen() ? AVClock::AudioClock : AVClock::ExternalClock);
-		}
-		if (vthread)
+        clock->setClockAuto(true);
+        clock->setClockType(athread && ao->isOpen() ? AVClock::AudioClock : AVClock::ExternalClock);
+        if (vthread)
             vthread->setFrameRate(0.0);
         ao->setSpeed(1);
-		if(m_streamtype == 0) {
-			m_clock->setSpeed(1);
-		}
+        clock->setSpeed(1);
     }
     ao->setSpeed(r);
-	if(m_streamtype == 0) {
-		m_clock->setSpeed(r);
-	}
+    clock->setSpeed(r);
 }
 
 void AVPlayer::Private::initStatistics()
@@ -422,7 +414,7 @@ bool AVPlayer::Private::setupAudioThread(AVPlayer *player)
     if (!athread) {
         qDebug("new audio thread");
         athread = new AudioThread(player);
-		athread->setClock(m_clock);
+        athread->setClock(clock);
         athread->setStatistics(&statistics);
         athread->setOutputSet(aos);
         qDebug("demux thread setAudioThread");
@@ -599,7 +591,7 @@ bool AVPlayer::Private::setupVideoThread(AVPlayer *player)
     QObject::connect(vdec, SIGNAL(error(QtAV::AVError)), player, SIGNAL(error(QtAV::AVError)));
     if (!vthread) {
         vthread = new VideoThread(player);
-		vthread->setClock(m_clock);
+        vthread->setClock(clock);
         vthread->setStatistics(&statistics);
         vthread->setVideoCapture(vcapture);
         vthread->setOutputSet(vos);
@@ -654,17 +646,6 @@ void AVPlayer::Private::updateBufferValue()
         updateBufferValue(athread->packetQueue());
     if (vthread)
         updateBufferValue(vthread->packetQueue());
-}
-void AVPlayer::Private::setClock(AVClock *clock)
-{
-	if(m_clock != 0) {
-		delete m_clock;
-	}
-	m_clock = clock;
-}
-void AVPlayer::Private::setStreamType(int type)
-{
-	m_streamtype = type;
 }
 
 } //namespace QtAV

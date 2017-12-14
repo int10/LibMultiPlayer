@@ -275,7 +275,6 @@ public:
      * \brief play
      * If isAsyncLoad() is true (default), play() will return immediately. Signals started() and stateChanged() will be emitted if media is loaded and playback starts.
      */
-	void play(const QString &path, AVClock *clock, int streamtype);
     void play(const QString& path);
     bool isPlaying() const;
     bool isPaused() const;

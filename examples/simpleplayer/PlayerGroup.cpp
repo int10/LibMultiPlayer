@@ -39,14 +39,14 @@ PlayerGroup::~PlayerGroup()
 
 void PlayerGroup::Play(int index)
 {
-	m_audioplayer->play(m_audiolist.at(index), &m_mainclock, index);
+	//m_audioplayer->play(m_audiolist.at(index), &m_mainclock, index);
 	m_curaudioindex = 0;
 	for(int i = 0; i < m_videolist.size(); i++) {
 		if(0 == i) {
-			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 0);
+//			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 0);
 //			m_playerlist.at(i)->setAudioStream(m_audiolist.at(index));
 		} else {
-			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 1);
+//			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 1);
 		}
 	}
 	m_isplaying = true;

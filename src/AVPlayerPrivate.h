@@ -38,8 +38,6 @@ public:
     Private();
     ~Private();
 
-	void setClock(AVClock *clock);
-	void setStreamType(int type);
     bool checkSourceChange();
     void updateNotifyInterval();
     void applyFrameRate();
@@ -128,7 +126,7 @@ public:
     //the following things are required and must be set not null
     AVDemuxer demuxer;
     AVDemuxThread *read_thread;
-	AVClock *m_clock;
+    AVClock *clock;
     VideoRenderer *vo; //list? // TODO: remove
     AudioOutput *ao; // TODO: remove
     AudioDecoder *adec;
@@ -157,7 +155,6 @@ public:
     AVPlayer::State state;
     MediaEndAction end_action;
     QMutex load_mutex;
-	int m_streamtype;
 };
 
 } //namespace QtAV
