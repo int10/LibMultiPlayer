@@ -7,8 +7,8 @@ SUBDIRS = common
   SUBDIRS += \
 #    sharedoutput \
 #    simpletranscode \
-    simpleplayer
-#    player \
+    simpleplayer    \
+    player \
 #    filters \
 #    framereader \
 #    videocapture \

@@ -67,9 +67,17 @@ bool PlayerGroup::IsPlaying()
 	return m_isplaying;
 }
 
-void PlayerGroup::Pause()
+void PlayerGroup::PlayPause()
 {
-
+	if (!m_playerlist.at(0)->isPlaying()) {
+		foreach(QtAV::AVPlayer *player, m_playerlist) {
+			player->play();
+		}
+		return;
+	}
+	foreach(QtAV::AVPlayer *player, m_playerlist) {
+		player->pause(!player->isPaused());
+	}
 }
 
 void PlayerGroup::SwitchAudio(int index)
@@ -148,7 +156,7 @@ void PlayerGroup::timeoutHandle()
 	for(int i = 1; i < m_playerlist.size(); i++){
 		if(m_playerlist.at(i)->isPlaying()){
 			double ppos = m_playerlist.at(i)->masterClock()->value();
-			if(qAbs(pos - ppos) > 0.1){		//> 0.3ms update clock;
+			if(qAbs(pos - ppos) > 0.1){		//> 0.1ms update clock;
 				m_playerlist.at(i)->updateClock(qint64(pos * 1000.0));
 			}
 		}

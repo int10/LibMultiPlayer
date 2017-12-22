@@ -5,6 +5,7 @@
 #include <QTimer>
 #include "QtAV.h"
 
+#define MAX_VIDEO_OUT		(6)
 class PlayerGroup : public QObject
 {
 	Q_OBJECT
@@ -13,7 +14,8 @@ public:
 	~PlayerGroup();
 
 	void Play(int index);
-	void Pause();
+	void Play();
+	void PlayPause();
 	void Stop();
 	void Seek(qint64 value);
 	bool IsPlaying();

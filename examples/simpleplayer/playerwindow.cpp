@@ -34,6 +34,7 @@ PlayerWindow::PlayerWindow(QWidget *parent) : QWidget(parent)
     m_unit = 1000;
 	setWindowTitle(QString::fromLatin1("multi player"));
 	setMinimumSize(800, 600);
+
 //	m_player = new AVPlayer(this);
     QVBoxLayout *vl = new QVBoxLayout();
     setLayout(vl);
@@ -79,6 +80,7 @@ PlayerWindow::PlayerWindow(QWidget *parent) : QWidget(parent)
     connect(m_openBtn, SIGNAL(clicked()), SLOT(openMedia()));
     connect(m_playBtn, SIGNAL(clicked()), SLOT(playPause()));
 //	connect(m_stopBtn, SIGNAL(clicked()), m_player, SLOT(stop()));
+	connect(m_stopBtn, SIGNAL(clicked()), SLOT(stop()));
 
 	connect(m_audiobtngroup, SIGNAL(buttonClicked(int)), SLOT(Slot_ClickBtnGroup(int)));
 
@@ -121,6 +123,12 @@ void PlayerWindow::playPause()
 //        return;
 //    }
 //    m_player->pause(!m_player->isPaused());
+	m_playergroup->PlayPause();
+}
+
+void PlayerWindow::stop()
+{
+	m_playergroup->Stop();
 }
 
 void PlayerWindow::updateSlider(qint64 value)

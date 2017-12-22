@@ -44,6 +44,7 @@ public Q_SLOTS:
     void seekBySlider(int value);
     void seekBySlider();
     void playPause();
+	void stop();
 	void Play(QString xmlfilename);
 private Q_SLOTS:
     void updateSlider(qint64 value);
