@@ -11,6 +11,7 @@ class PlayerGroup : public QObject
 	Q_OBJECT
 public:
 	PlayerGroup(QStringList audiolist, QStringList videolist);
+	PlayerGroup(QStringList audiolist, QStringList videolist, QList<QtAV::VideoOutput *> videooutput);
 	~PlayerGroup();
 
 	void Play(int index);

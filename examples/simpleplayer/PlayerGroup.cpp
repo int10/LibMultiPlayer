@@ -27,6 +27,21 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist)
 	m_synctimer->start(1000);
 }
 
+PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist, QList<QtAV::VideoOutput *> videooutput)
+{
+	m_audiolist = audiolist;
+	m_videolist = videolist;
+	m_audioplayer = new QtAV::AVPlayer;
+	for(int i = 0; i < videolist.size(); i++) {
+		QtAV::AVPlayer *player = new (QtAV::AVPlayer);
+		m_playerlist.append(player);
+		player->setRenderer(videooutput.at(i));
+	}
+	m_synctimer = new QTimer(this);
+	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
+	m_synctimer->start(1000);
+}
+
 PlayerGroup::~PlayerGroup()
 {
 	Stop();
