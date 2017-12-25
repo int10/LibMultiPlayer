@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		m_videoout[i]->label = new QLabel;
 		m_videoout[i]->output = new (QtAV::VideoOutput);
 		QVBoxLayout *vl =  new QVBoxLayout();
-		m_videoout[i]->label->setText("屡");
+		m_videoout[i]->label->setText("NULL");
 		m_videoout[i]->label->setAlignment(Qt::AlignHCenter);
 		vl->addWidget(m_videoout[i]->label);
 		vl->addWidget(m_videoout[i]->output->widget());
@@ -82,6 +82,20 @@ void MainWindow::updateSlider(qint64 value)
 {
 	ui->sliProcess->setRange(0, int(m_playergroup->duration()/m_unit));
 	ui->sliProcess->setValue(int(value/m_unit));
+
+	int total_sec = m_playergroup->duration()/1000;
+	int min = total_sec/60;
+	int sec = total_sec - min * 60;
+
+	int ptotal_sec = value/1000;
+	int pmin = ptotal_sec/60;
+	int psec = ptotal_sec - pmin * 60;
+	QString str;
+	str.sprintf("%03d:%02d/%03d:%02d", pmin, psec, min, sec);
+	qDebug()<<m_playergroup->duration()<<value<<str;
+	ui->lbProcess->setText(str);
+
+
 }
 
 void MainWindow::updateSlider()
@@ -149,9 +163,14 @@ void MainWindow::Play(QString xmlfilename)
 	foreach(sAudioInfo ainfo, audiolist) {
 		audiofilelist.append(fileinfo.absolutePath() + "/" + ainfo.file);
 	}
-	foreach(sVideoInfo vinfo, videolist) {
-		videofilelist.append(fileinfo.absolutePath() + "/" + vinfo.file);
+
+	for(int i = 0; i < videolist.size(); i++) {
+		videofilelist.append(fileinfo.absolutePath() + "/" + videolist.at(i).file);
+		m_videoout[i]->label->setText(videolist.at(i).desc);
 	}
+//	foreach(sVideoInfo vinfo, videolist) {
+//		videofilelist.append(fileinfo.absolutePath() + "/" + vinfo.file);
+//	}
 
 #endif
 	if(m_playergroup) {

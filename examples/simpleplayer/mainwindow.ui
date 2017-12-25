@@ -265,17 +265,17 @@
                    <string>I</string>
                   </property>
                  </widget>
-                 <widget class="QLabel" name="label_5">
+                 <widget class="QLabel" name="lbProcess">
                   <property name="geometry">
                    <rect>
-                    <x>150</x>
+                    <x>145</x>
                     <y>20</y>
-                    <width>100</width>
+                    <width>200</width>
                     <height>15</height>
                    </rect>
                   </property>
                   <property name="text">
-                   <string>00:00</string>
+                   <string>00:00/00:00</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>

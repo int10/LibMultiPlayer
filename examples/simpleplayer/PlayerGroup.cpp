@@ -37,6 +37,15 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist, QList<QtA
 		m_playerlist.append(player);
 		player->setRenderer(videooutput.at(i));
 	}
+
+	m_isplaying = false;
+
+//	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+//	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
+//	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+	connect(m_playerlist.at(0), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+	connect(m_playerlist.at(0), SIGNAL(started()), SLOT(updateSlider()));
+	connect(m_playerlist.at(0), SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
 	m_synctimer = new QTimer(this);
 	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
 	m_synctimer->start(1000);
