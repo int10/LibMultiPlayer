@@ -6,6 +6,7 @@
 #include "QtAV.h"
 
 #define MAX_VIDEO_OUT		(6)
+#define MAX_AUDIO_FILE		(4)
 class PlayerGroup : public QObject
 {
 	Q_OBJECT
@@ -25,6 +26,8 @@ public:
 	qint64 duration();
 	void SwitchAudio(int index);
 	QList<QtAV::VideoOutput *> GetVideoOutput();
+	void AddVideoOutput(int index, QtAV::VideoOutput * output);
+	void RemoveVideoOutput(int index, QtAV::VideoOutput * output);
 
 signals:
 	void Signal_UpdateSliderUnit();

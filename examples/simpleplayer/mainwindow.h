@@ -11,6 +11,7 @@
 #include <QMimeData>
 #include <QMessageBox>
 #include "ConfigXml.h"
+#include <QButtonGroup>
 
 namespace Ui {
 class MainWindow;
@@ -40,19 +41,29 @@ private slots:
 	void updateSlider(qint64 value);
 	void updateSlider();
 	void updateSliderUnit();
+	void Slot_ClickBtnGroup(int id);
+
+	void on_btnIdle_clicked();
+
 private:
 	void Play(QString xmlfilename);
+	void PlayFullScreen(int index);
+	void ExitFullScreen(int index);
 
 protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent *);
 private:
 	Ui::MainWindow *ui;
 	sVideoWindow *m_videoout[MAX_VIDEO_OUT];
+	QtAV::VideoOutput *m_singlevideooutput;
 	PlayerGroup *m_playergroup;
 	int m_unit;
 	int m_index;
+	int m_fullscreenindex;
 	qint64 m_position;
+	QButtonGroup *m_audiobtngroup;
 
 };
 

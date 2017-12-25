@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	m_unit = 1000;
 	m_playergroup = NULL;
+	m_index = 0;
 	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
 		m_videoout[i] = new sVideoWindow;
 		m_videoout[i]->label = new QLabel;
@@ -25,6 +26,20 @@ MainWindow::MainWindow(QWidget *parent) :
 		vl->setStretch(1,1);
 		ui->loVideoList->addLayout(vl, (i < 3)?0:1, i%3);
 	}
+	m_audiobtngroup = new QButtonGroup(this);
+	m_audiobtngroup->addButton(ui->btnAudio1, 0);
+	m_audiobtngroup->addButton(ui->btnAudio2, 1);
+	m_audiobtngroup->addButton(ui->btnAudio3, 2);
+	m_audiobtngroup->addButton(ui->btnAudio4, 3);
+	connect(m_audiobtngroup, SIGNAL(buttonClicked(int)), this, SLOT(Slot_ClickBtnGroup(int)));
+	foreach(QAbstractButton * btn, m_audiobtngroup->buttons()) {
+		btn->setCheckable(true);
+	}
+	m_singlevideooutput = new (QtAV::VideoOutput);
+	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
+
+	ui->stackedWidget->setCurrentIndex(0);
+
 	setAcceptDrops(true);
 }
 
@@ -41,6 +56,14 @@ MainWindow::~MainWindow()
 		}
 		delete m_videoout[i];
 		m_videoout[i] = NULL;
+	}
+	if(m_audiobtngroup) {
+		delete m_audiobtngroup;
+		m_audiobtngroup = NULL;
+	}
+	if(m_singlevideooutput) {
+		delete m_singlevideooutput;
+		m_singlevideooutput = NULL;
 	}
 	delete ui;
 }
@@ -91,11 +114,8 @@ void MainWindow::updateSlider(qint64 value)
 	int pmin = ptotal_sec/60;
 	int psec = ptotal_sec - pmin * 60;
 	QString str;
-	str.sprintf("%03d:%02d/%03d:%02d", pmin, psec, min, sec);
-	qDebug()<<m_playergroup->duration()<<value<<str;
+	str.sprintf("%0d:%02d/%0d:%02d", pmin, psec, min, sec);
 	ui->lbProcess->setText(str);
-
-
 }
 
 void MainWindow::updateSlider()
@@ -133,6 +153,29 @@ void MainWindow::dropEvent(QDropEvent *event)
 		return;
 	}
 	Play(fileName);
+}
+
+void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
+{
+	if(event->button() != Qt::LeftButton) return;
+	if(NULL == m_playergroup) return;
+
+	qDebug()<<"double click"<<m_fullscreenindex;
+
+	if(-1 == m_fullscreenindex){
+		int index = 0;
+		for(int row = 0; row < ui->loVideoList->rowCount(); row++){
+			for(int column = 0; column < ui->loVideoList->columnCount(); column++) {
+				if(ui->loVideoList->cellRect(row, column).contains(event->pos())){
+					index = row * ui->loVideoList->columnCount() + column;
+					PlayFullScreen(index);
+					break;
+				}
+			}
+		}
+	} else {
+		ExitFullScreen(m_fullscreenindex);
+	}
 }
 
 void MainWindow::Play(QString xmlfilename)
@@ -181,16 +224,62 @@ void MainWindow::Play(QString xmlfilename)
 	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
 		output.append(m_videoout[i]->output);
 	}
+	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
+		if(i < audiolist.size()) {
+			m_audiobtngroup->buttons().at(i)->setEnabled(true);
+		} else {
+			m_audiobtngroup->buttons().at(i)->setEnabled(false);
+		}
+	}
 	m_playergroup = new PlayerGroup(audiofilelist, videofilelist, output);
 
 	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
 	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
 	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
+	m_index = 0;
+	m_fullscreenindex = -1;
 	m_playergroup->Play(m_index);
+	m_audiobtngroup->button(m_index)->setChecked(true);
 
 }
 
 void MainWindow::on_sliProcess_sliderMoved(int position)
 {
 	seekBySlider(position);
+}
+
+void MainWindow::Slot_ClickBtnGroup(int id)
+{
+	m_playergroup->SwitchAudio(id);
+	foreach (QAbstractButton * btn, m_audiobtngroup->buttons()) {
+		btn->setChecked(false);
+	}
+	m_audiobtngroup->button(id)->setChecked(true);
+	m_index = id;
+}
+
+void MainWindow::PlayFullScreen(int index)
+{
+	m_playergroup->AddVideoOutput(index, m_singlevideooutput);
+	ui->stackedWidget->setCurrentIndex(1);
+//	m_singlevideooutput->widget()->setWindowFlags (Qt::Window);
+//	m_singlevideooutput->widget()->showFullScreen();
+	m_fullscreenindex = index;
+}
+
+void MainWindow::ExitFullScreen(int index)
+{
+//	m_singlevideooutput->widget()->setWindowFlags (Qt::SubWindow);
+//	m_singlevideooutput->widget()->showNormal();
+	ui->stackedWidget->setCurrentIndex(0);
+	m_playergroup->RemoveVideoOutput(index, m_singlevideooutput);
+	m_fullscreenindex = -1;
+}
+
+void MainWindow::on_btnIdle_clicked()
+{
+	ui->stackedWidget->setCurrentIndex(1);
+	m_singlevideooutput->widget()->setWindowFlags (Qt::Window);
+	m_singlevideooutput->widget()->showFullScreen();
+
 }

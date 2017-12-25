@@ -173,15 +173,31 @@ QList<QtAV::VideoOutput *> PlayerGroup::GetVideoOutput()
 	return m_volist;
 }
 
+void PlayerGroup::AddVideoOutput(int index, QtAV::VideoOutput * output)
+{
+	if(index >= m_playerlist.size()) return;
+	if(!m_playerlist.at(index)->isPlaying()) return;
+	m_playerlist.at(index)->addVideoRenderer(output);
+}
+
+void PlayerGroup::RemoveVideoOutput(int index, QtAV::VideoOutput * output)
+{
+	if(index >= m_playerlist.size()) return;
+	if(!m_playerlist.at(index)->isPlaying()) return;
+	m_playerlist.at(index)->removeVideoRenderer(output);
+}
+
 void PlayerGroup::timeoutHandle()
 {
 	QList<double> poslist;
-	double pos = m_playerlist.at(0)->masterClock()->value();
-	for(int i = 1; i < m_playerlist.size(); i++){
-		if(m_playerlist.at(i)->isPlaying()){
-			double ppos = m_playerlist.at(i)->masterClock()->value();
-			if(qAbs(pos - ppos) > 0.1){		//> 0.1ms update clock;
-				m_playerlist.at(i)->updateClock(qint64(pos * 1000.0));
+	if(m_playerlist.at(0)->isPlaying()) {
+		double pos = m_playerlist.at(0)->masterClock()->value();
+		for(int i = 1; i < m_playerlist.size(); i++){
+			if(m_playerlist.at(i)->isPlaying()){
+				double ppos = m_playerlist.at(i)->masterClock()->value();
+				if(qAbs(pos - ppos) > 0.1){		//> 0.1ms update clock;
+					m_playerlist.at(i)->updateClock(qint64(pos * 1000.0));
+				}
 			}
 		}
 	}
