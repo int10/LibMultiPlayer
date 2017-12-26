@@ -171,7 +171,7 @@ qint64 PlayerGroup::duration()
 
 void PlayerGroup::stateChanged(QtAV::AVPlayer::State state)
 {
-
+	emit Signal_StateChanged(state);
 }
 
 QList<QtAV::VideoOutput *> PlayerGroup::GetVideoOutput()
@@ -179,11 +179,12 @@ QList<QtAV::VideoOutput *> PlayerGroup::GetVideoOutput()
 	return m_volist;
 }
 
-void PlayerGroup::AddVideoOutput(int index, QtAV::VideoOutput * output)
+bool PlayerGroup::AddVideoOutput(int index, QtAV::VideoOutput * output)
 {
-	if(index >= m_playerlist.size()) return;
-	if(!m_playerlist.at(index)->isPlaying()) return;
+	if(index >= m_playerlist.size()) return false;
+	if(!m_playerlist.at(index)->isPlaying()) return false;
 	m_playerlist.at(index)->addVideoRenderer(output);
+	return true;
 }
 
 void PlayerGroup::RemoveVideoOutput(int index, QtAV::VideoOutput * output)

@@ -26,7 +26,7 @@ public:
 	qint64 duration();
 	void SwitchAudio(int index);
 	QList<QtAV::VideoOutput *> GetVideoOutput();
-	void AddVideoOutput(int index, QtAV::VideoOutput * output);
+	bool AddVideoOutput(int index, QtAV::VideoOutput * output);
 	void RemoveVideoOutput(int index, QtAV::VideoOutput * output);
 
 signals:

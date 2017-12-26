@@ -55,6 +55,7 @@ protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
 	void mouseDoubleClickEvent(QMouseEvent *);
+	bool eventFilter(QObject *obj, QEvent *e);
 private:
 	Ui::MainWindow *ui;
 	sVideoWindow *m_videoout[MAX_VIDEO_OUT];
