@@ -33,11 +33,13 @@ signals:
 	void Signal_UpdateSliderUnit();
 	void Signal_PositionChanged(qint64 value);
 	void Signal_Started();
+	void Signal_StateChanged(QtAV::AVPlayer::State state);
 private slots:
 	void updateSliderUnit();
 	void updateSlider(qint64 value);
 	void updateSlider();
 	void timeoutHandle();
+	void stateChanged(QtAV::AVPlayer::State state);
 
 private:
 	QStringList m_audiolist;

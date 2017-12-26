@@ -22,6 +22,7 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist)
 	connect(m_playerlist.at(0), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
 	connect(m_playerlist.at(0), SIGNAL(started()), SLOT(updateSlider()));
 	connect(m_playerlist.at(0), SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+	connect(m_playerlist.at(0), SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
 	m_synctimer = new QTimer(this);
 	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
 	m_synctimer->start(1000);
@@ -166,6 +167,11 @@ qint64 PlayerGroup::duration()
 {
 //	return m_audioplayer->duration();
 	return m_playerlist.at(0)->duration();
+}
+
+void PlayerGroup::stateChanged(QtAV::AVPlayer::State state)
+{
+
 }
 
 QList<QtAV::VideoOutput *> PlayerGroup::GetVideoOutput()

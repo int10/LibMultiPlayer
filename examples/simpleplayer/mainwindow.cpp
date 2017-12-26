@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_unit = 1000;
 	m_playergroup = NULL;
 	m_index = 0;
+	m_xmlfilepath = "";
 	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
 		m_videoout[i] = new sVideoWindow;
 		m_videoout[i]->label = new QLabel;
@@ -39,7 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
 
 	ui->stackedWidget->setCurrentIndex(0);
-
+	SetStopState();
+	ui->btnIdle->setVisible(false);
 	setAcceptDrops(true);
 }
 
@@ -71,7 +73,7 @@ MainWindow::~MainWindow()
 void MainWindow::seekBySlider(int value)
 {
 
-	if(m_playergroup->IsPlaying()){
+	if(m_playergroup && m_playergroup->IsPlaying()){
 		m_playergroup->Seek(qint64(value * m_unit));
 	}
 
@@ -99,6 +101,7 @@ void MainWindow::on_btnPlayPause_clicked()
 void MainWindow::on_btnStop_clicked()
 {
 	m_playergroup->Stop();
+	SetStopState();
 }
 
 void MainWindow::updateSlider(qint64 value)
@@ -224,13 +227,7 @@ void MainWindow::Play(QString xmlfilename)
 	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
 		output.append(m_videoout[i]->output);
 	}
-	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
-		if(i < audiolist.size()) {
-			m_audiobtngroup->buttons().at(i)->setEnabled(true);
-		} else {
-			m_audiobtngroup->buttons().at(i)->setEnabled(false);
-		}
-	}
+	SetPlayState(audiolist.size());
 	m_playergroup = new PlayerGroup(audiofilelist, videofilelist, output);
 
 	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
@@ -240,6 +237,7 @@ void MainWindow::Play(QString xmlfilename)
 	m_fullscreenindex = -1;
 	m_playergroup->Play(m_index);
 	m_audiobtngroup->button(m_index)->setChecked(true);
+	m_xmlfilepath = xmlfilename;
 
 }
 
@@ -282,4 +280,39 @@ void MainWindow::on_btnIdle_clicked()
 	m_singlevideooutput->widget()->setWindowFlags (Qt::Window);
 	m_singlevideooutput->widget()->showFullScreen();
 
+}
+
+void MainWindow::SetStopState()
+{
+	foreach (QAbstractButton * btn, m_audiobtngroup->buttons()) {
+		btn->setEnabled(false);
+	}
+	ui->btnPlayPause->setEnabled(false);
+	ui->btnStop->setEnabled(false);
+	ui->lbProcess->setEnabled(false);
+	ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::SetPlayState(int audiocount)
+{
+	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
+		if(i < audiocount) {
+			m_audiobtngroup->buttons().at(i)->setEnabled(true);
+		} else {
+			m_audiobtngroup->buttons().at(i)->setEnabled(false);
+		}
+	}
+	ui->btnPlayPause->setEnabled(true);
+	ui->btnStop->setEnabled(true);
+	ui->lbProcess->setEnabled(true);
+}
+
+void MainWindow::Slot_StateChanged(QtAV::AVPlayer::State state)
+{
+	if(QtAV::AVPlayer::StoppedState == state) {
+		m_playergroup->Stop();
+		delete m_playergroup;
+		m_playergroup = NULL;
+	}
+	SetStopState();
 }

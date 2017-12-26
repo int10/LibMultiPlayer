@@ -42,13 +42,14 @@ private slots:
 	void updateSlider();
 	void updateSliderUnit();
 	void Slot_ClickBtnGroup(int id);
-
+	void Slot_StateChanged(QtAV::AVPlayer::State state);
 	void on_btnIdle_clicked();
-
 private:
 	void Play(QString xmlfilename);
 	void PlayFullScreen(int index);
 	void ExitFullScreen(int index);
+	void SetStopState();
+	void SetPlayState(int audiocount);
 
 protected:
 	void dragEnterEvent(QDragEnterEvent *event);
@@ -64,7 +65,7 @@ private:
 	int m_fullscreenindex;
 	qint64 m_position;
 	QButtonGroup *m_audiobtngroup;
-
+	QString m_xmlfilepath;
 };
 
 #endif // MAINWINDOW_H
