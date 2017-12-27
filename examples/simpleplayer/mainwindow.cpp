@@ -16,18 +16,18 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_xmlfilepath = "";
 	m_fullscreenindex = -1;
 	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
-		m_videoout[i] = new sVideoWindow;
-		m_videoout[i]->label = new QLabel;
-		m_videoout[i]->output = new (QtAV::VideoOutput);
+		sVideoWindow * vo = new sVideoWindow;
+		vo->label = new QLabel;
+		vo->output = new (QtAV::VideoOutput);
 		QVBoxLayout *vl =  new QVBoxLayout();
-		m_videoout[i]->label->setText("NULL");
-		m_videoout[i]->label->setAlignment(Qt::AlignHCenter);
-		vl->addWidget(m_videoout[i]->label);
-		vl->addWidget(m_videoout[i]->output->widget());
-		qDebug()<<m_videoout[i]->output->widget()->objectName();
+		vo->label->setText("NULL");
+		vo->label->setAlignment(Qt::AlignHCenter);
+		vl->addWidget(vo->label);
+		vl->addWidget(vo->output->widget());
 		vl->setStretch(0,0);
 		vl->setStretch(1,1);
 		ui->loVideoList->addLayout(vl, (i < 3)?0:1, i%3);
+		m_videoout.append(vo);
 	}
 	m_audiobtngroup = new QButtonGroup(this);
 	m_audiobtngroup->addButton(ui->btnAudio1, 0);
@@ -47,26 +47,25 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->stackedWidget->setCurrentIndex(0);
 	SetStopState();
 	ui->btnIdle->setVisible(false);
-//	ui->loSinVideo->installEventFilter(this);
-//	m_singlevideooutput->widget()->installEventFilter(this);
-//	ui->page_2->installEventFilter(this);
+
 	setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow()
 {
-	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
-		if(m_videoout[i]->label) {
-			delete m_videoout[i]->label;
-			m_videoout[i]->label = NULL;
+	foreach (sVideoWindow * vo, m_videoout) {
+		if(vo->label) {
+			delete vo->label;
+			vo->label = NULL;
 		}
-		if(m_videoout[i]->output) {
-			delete m_videoout[i]->output;
-			m_videoout[i]->output = NULL;
+		if(vo->output) {
+			delete vo->output;
+			vo->output = NULL;
 		}
-		delete m_videoout[i];
-		m_videoout[i] = NULL;
+		delete vo;
 	}
+	m_videoout.clear();
+
 	if(m_audiobtngroup) {
 		delete m_audiobtngroup;
 		m_audiobtngroup = NULL;
@@ -187,11 +186,6 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 	}
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{
-//	if(-1 == m_fullscreenindex) return;
-	qDebug()<<this->geometry();
-}
 
 void MainWindow::Play(QString xmlfilename)
 {
@@ -236,10 +230,11 @@ void MainWindow::Play(QString xmlfilename)
 		delete m_playergroup;
 	}
 	QList<QtAV::VideoOutput *> output;
-	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
-		output.append(m_videoout[i]->output);
+	foreach(sVideoWindow *vo, m_videoout) {
+		output.append(vo->output);
 	}
-	SetPlayState(audiolist.size());
+
+	SetPlayState(audiolist);
 	m_playergroup = new PlayerGroup(audiofilelist, videofilelist, output);
 
 	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
@@ -296,9 +291,11 @@ void MainWindow::on_btnIdle_clicked()
 
 void MainWindow::SetStopState()
 {
-	foreach (QAbstractButton * btn, m_audiobtngroup->buttons()) {
-		btn->setEnabled(false);
+	for(int i = 0; i < m_audiobtngroup->buttons().size(); i++) {
+		m_audiobtngroup->buttons().at(i)->setEnabled(false);
+		m_audiobtngroup->buttons().at(i)->setText(QString::number(i));
 	}
+
 	ui->btnPlayPause->setEnabled(false);
 	ui->btnStop->setEnabled(false);
 	ui->sliProcess->setEnabled(false);
@@ -306,13 +303,15 @@ void MainWindow::SetStopState()
 	ExitFullScreen(m_fullscreenindex);
 }
 
-void MainWindow::SetPlayState(int audiocount)
+void MainWindow::SetPlayState(QList<sAudioInfo> audiolist)
 {
 	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
-		if(i < audiocount) {
+		if(i < audiolist.size()) {
 			m_audiobtngroup->buttons().at(i)->setEnabled(true);
+			m_audiobtngroup->buttons().at(i)->setText(audiolist.at(i).desc);
 		} else {
 			m_audiobtngroup->buttons().at(i)->setEnabled(false);
+			m_audiobtngroup->buttons().at(i)->setText(QString::number(i+1));
 		}
 	}
 	ui->btnPlayPause->setEnabled(true);

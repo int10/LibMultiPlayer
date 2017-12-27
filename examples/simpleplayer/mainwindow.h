@@ -49,16 +49,14 @@ private:
 	void PlayFullScreen(int index);
 	void ExitFullScreen(int index);
 	void SetStopState();
-	void SetPlayState(int audiocount);
+	void SetPlayState(QList<sAudioInfo> audiocount);
 
 protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
 	void mouseDoubleClickEvent(QMouseEvent *);
-	void mouseMoveEvent(QMouseEvent *event);
 private:
 	Ui::MainWindow *ui;
-	//sVideoWindow *m_videoout[MAX_VIDEO_OUT];
 	QList<sVideoWindow *> m_videoout;
 	QtAV::VideoOutput *m_singlevideooutput;
 	PlayerGroup *m_playergroup;
