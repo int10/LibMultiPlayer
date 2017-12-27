@@ -5,7 +5,6 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist)
 {
 	m_audiolist = audiolist;
 	m_videolist = videolist;
-	m_audioplayer = new QtAV::AVPlayer;
 
 	for(int i = 0; i < videolist.size(); i++) {
 		QtAV::AVPlayer *player = new (QtAV::AVPlayer);
@@ -15,41 +14,59 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist)
 		player->setRenderer(output);
 	}
 	m_isplaying = false;
+	m_synctimer = NULL;
 
-//	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
-//	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
-//	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+#ifdef USE_QMEDIAPLAYER
+	m_audioplayer = new QMediaPlayer;
+	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+	//	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
+	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+	connect(m_audioplayer, SIGNAL(stateChanged(QMediaPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
+
+#else
+	m_audioplayer = new QtAV::AVPlayer;
 	connect(m_playerlist.at(0), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
 	connect(m_playerlist.at(0), SIGNAL(started()), SLOT(updateSlider()));
 	connect(m_playerlist.at(0), SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
 	connect(m_playerlist.at(0), SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
+
 	m_synctimer = new QTimer(this);
 	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
 	m_synctimer->start(1000);
+#endif
 }
 
 PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist, QList<QtAV::VideoOutput *> videooutput)
 {
 	m_audiolist = audiolist;
 	m_videolist = videolist;
-	m_audioplayer = new QtAV::AVPlayer;
+
 	for(int i = 0; i < videolist.size(); i++) {
 		QtAV::AVPlayer *player = new (QtAV::AVPlayer);
 		m_playerlist.append(player);
 		player->setRenderer(videooutput.at(i));
 	}
-
 	m_isplaying = false;
+	m_synctimer = NULL;
 
-//	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
-//	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
-//	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+#ifdef USE_QMEDIAPLAYER
+	m_audioplayer = new QMediaPlayer;
+	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+	//	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
+	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+	connect(m_audioplayer, SIGNAL(stateChanged(QMediaPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
+
+#else
+	m_audioplayer = new QtAV::AVPlayer;
 	connect(m_playerlist.at(0), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
 	connect(m_playerlist.at(0), SIGNAL(started()), SLOT(updateSlider()));
 	connect(m_playerlist.at(0), SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+	connect(m_playerlist.at(0), SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
+
 	m_synctimer = new QTimer(this);
 	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
 	m_synctimer->start(1000);
+#endif
 }
 
 PlayerGroup::~PlayerGroup()
@@ -63,6 +80,9 @@ PlayerGroup::~PlayerGroup()
 		delete output;
 	}
 	m_volist.clear();
+	if(m_audioplayer){
+		delete m_audioplayer;
+	}
 	if(m_synctimer){
 		m_synctimer->stop();
 		delete m_synctimer;
@@ -71,16 +91,18 @@ PlayerGroup::~PlayerGroup()
 
 void PlayerGroup::Play(int index)
 {
-	//m_audioplayer->play(m_audiolist.at(index), &m_mainclock, index);
-	m_curaudioindex = 0;
+	m_curaudioindex = index;
 	for(int i = 0; i < m_videolist.size(); i++) {
 		if(0 == i) {
+		#ifdef USE_QMEDIAPLAYER
+			m_audioplayer->setMedia(QUrl::fromLocalFile(m_audiolist.at(index)));
+			m_audioplayer->play();
+		#else
 			m_playerlist.at(i)->setAudioStream(m_audiolist.at(index));
-//			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 0);
+		#endif
 			m_playerlist.at(i)->play(m_videolist.at(i));
 
 		} else {
-//			m_playerlist.at(i)->play(m_videolist.at(i), &m_mainclock, 1);
 			m_playerlist.at(i)->play(m_videolist.at(i));
 		}
 	}
@@ -94,7 +116,9 @@ bool PlayerGroup::IsPlaying()
 
 void PlayerGroup::PlayPause()
 {
-	if (!m_playerlist.at(0)->isPlaying()) {
+#ifdef USE_QMEDIAPLAYER
+	if(QMediaPlayer::PausedState == m_audioplayer->state()) {
+		m_audioplayer->play();
 		foreach(QtAV::AVPlayer *player, m_playerlist) {
 			player->play();
 		}
@@ -103,6 +127,20 @@ void PlayerGroup::PlayPause()
 	foreach(QtAV::AVPlayer *player, m_playerlist) {
 		player->pause(!player->isPaused());
 	}
+	m_audioplayer->pause();
+
+#else
+	if (!m_playerlist.at(0)->isPlaying()) {
+		foreach(QtAV::AVPlayer *player, m_playerlist) {
+			player->play();
+		}
+		return;
+	}
+
+	foreach(QtAV::AVPlayer *player, m_playerlist) {
+		player->pause(!player->isPaused());
+	}
+#endif
 }
 
 void PlayerGroup::SwitchAudio(int index)
@@ -112,12 +150,15 @@ void PlayerGroup::SwitchAudio(int index)
 	}
 
 	m_curaudioindex = index;
+#ifdef USE_QMEDIAPLAYER
+	qint64 pos = m_audioplayer->position();
+	m_audioplayer->stop();
+	m_audioplayer->setMedia(QUrl::fromLocalFile(m_audiolist.at(index)));
+	m_audioplayer->setPosition(pos);
+	m_audioplayer->play();
+#else
 	m_playerlist.at(0)->setAudioStream(m_audiolist.at(index));
-//	qint64 pos = m_audioplayer->position();
-//	m_audioplayer->stop();
-
-//	m_audioplayer->play(m_audiolist.at(index), &m_mainclock, 0);
-//	Seek(pos);
+#endif
 }
 
 void PlayerGroup::Stop()
@@ -130,7 +171,11 @@ void PlayerGroup::Stop()
 
 void PlayerGroup::Seek(qint64 value)
 {
+#ifdef USE_QMEDIAPLAYER
+	m_audioplayer->setPosition(value);
+#else
 	m_audioplayer->seek(value);
+#endif
 	foreach(QtAV::AVPlayer * player, m_playerlist){
 		player->seek(value);
 	}
@@ -143,6 +188,20 @@ void PlayerGroup::updateSliderUnit()
 
 void PlayerGroup::updateSlider(qint64 value)
 {
+	qint64 pos = m_audioplayer->position();
+	foreach(QtAV::AVPlayer * player, m_playerlist){
+		player->updateClock(pos);
+	}
+
+	QList<int> poslist;
+	poslist.append(m_audioplayer->position());
+	foreach(QtAV::AVPlayer * player, m_playerlist){
+		poslist.append(player->position());
+	}
+	qDebug()<<poslist;
+
+
+
 	emit Signal_PositionChanged(value);
 }
 
@@ -159,19 +218,30 @@ int PlayerGroup::notifyInterval()
 
 qint64 PlayerGroup::position()
 {
-//	return m_audioplayer->position();
+#ifdef USE_QMEDIAPLAYER
+	return m_audioplayer->position();
+#else
 	return m_playerlist.at(0)->position();
+#endif
 }
 
 qint64 PlayerGroup::duration()
 {
-//	return m_audioplayer->duration();
+#ifdef USE_QMEDIAPLAYER
+	return m_audioplayer->duration();
+#else
 	return m_playerlist.at(0)->duration();
+#endif
 }
 
 void PlayerGroup::stateChanged(QtAV::AVPlayer::State state)
 {
 	emit Signal_StateChanged(state);
+}
+
+void PlayerGroup::mediaStateChanged(QMediaPlayer::State state)
+{
+	emit Signal_mediaStateChanged(state);
 }
 
 QList<QtAV::VideoOutput *> PlayerGroup::GetVideoOutput()
