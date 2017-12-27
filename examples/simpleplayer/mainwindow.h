@@ -55,10 +55,11 @@ protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
 	void mouseDoubleClickEvent(QMouseEvent *);
-	bool eventFilter(QObject *obj, QEvent *e);
+	void mouseMoveEvent(QMouseEvent *event);
 private:
 	Ui::MainWindow *ui;
-	sVideoWindow *m_videoout[MAX_VIDEO_OUT];
+	//sVideoWindow *m_videoout[MAX_VIDEO_OUT];
+	QList<sVideoWindow *> m_videoout;
 	QtAV::VideoOutput *m_singlevideooutput;
 	PlayerGroup *m_playergroup;
 	int m_unit;

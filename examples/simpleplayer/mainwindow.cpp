@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QVBoxLayout>
+#include <QSlider>
 
 using namespace QtAV;
 MainWindow::MainWindow(QWidget *parent) :
@@ -39,12 +40,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 	m_singlevideooutput = new (QtAV::VideoOutput);
 	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
+	QSlider * sl = new QSlider(ui->page_2);
+	sl->setOrientation(Qt::Horizontal);
+	ui->loSinVideo->addWidget(sl);
 
 	ui->stackedWidget->setCurrentIndex(0);
 	SetStopState();
 	ui->btnIdle->setVisible(false);
 //	ui->loSinVideo->installEventFilter(this);
 //	m_singlevideooutput->widget()->installEventFilter(this);
+//	ui->page_2->installEventFilter(this);
 	setAcceptDrops(true);
 }
 
@@ -166,8 +171,6 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 	if(event->button() != Qt::LeftButton) return;
 	if(NULL == m_playergroup) return;
 
-	qDebug()<<"double click"<<m_fullscreenindex;
-
 	if(-1 == m_fullscreenindex){
 		int index = 0;
 		for(int row = 0; row < ui->loVideoList->rowCount(); row++){
@@ -182,6 +185,12 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 	} else {
 		ExitFullScreen(m_fullscreenindex);
 	}
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+//	if(-1 == m_fullscreenindex) return;
+	qDebug()<<this->geometry();
 }
 
 void MainWindow::Play(QString xmlfilename)
@@ -261,11 +270,9 @@ void MainWindow::Slot_ClickBtnGroup(int id)
 
 void MainWindow::PlayFullScreen(int index)
 {
-	if(m_playergroup->AddVideoOutput(index, m_singlevideooutput))
-	{
+	if(m_playergroup->AddVideoOutput(index, m_singlevideooutput)) {
 		ui->stackedWidget->setCurrentIndex(1);
-		m_singlevideooutput->widget()->setWindowFlags (Qt::Window);
-		m_singlevideooutput->widget()->showFullScreen();
+		this->showFullScreen();
 		m_fullscreenindex = index;
 	}
 }
@@ -273,8 +280,7 @@ void MainWindow::PlayFullScreen(int index)
 void MainWindow::ExitFullScreen(int index)
 {
 	if(-1 != m_fullscreenindex) {
-		m_singlevideooutput->widget()->setWindowFlags (Qt::SubWindow);
-		m_singlevideooutput->widget()->showNormal();
+		this->showNormal();
 		ui->stackedWidget->setCurrentIndex(0);
 		m_playergroup->RemoveVideoOutput(index, m_singlevideooutput);
 		m_fullscreenindex = -1;
@@ -286,7 +292,6 @@ void MainWindow::on_btnIdle_clicked()
 	ui->stackedWidget->setCurrentIndex(1);
 	m_singlevideooutput->widget()->setWindowFlags (Qt::Window);
 	m_singlevideooutput->widget()->showFullScreen();
-
 }
 
 void MainWindow::SetStopState()
@@ -296,11 +301,9 @@ void MainWindow::SetStopState()
 	}
 	ui->btnPlayPause->setEnabled(false);
 	ui->btnStop->setEnabled(false);
-	ui->lbProcess->setEnabled(false);
+	ui->sliProcess->setEnabled(false);
 	ui->stackedWidget->setCurrentIndex(0);
-
 	ExitFullScreen(m_fullscreenindex);
-
 }
 
 void MainWindow::SetPlayState(int audiocount)
@@ -314,7 +317,7 @@ void MainWindow::SetPlayState(int audiocount)
 	}
 	ui->btnPlayPause->setEnabled(true);
 	ui->btnStop->setEnabled(true);
-	ui->lbProcess->setEnabled(true);
+	ui->sliProcess->setEnabled(true);
 }
 
 void MainWindow::Slot_StateChanged(QtAV::AVPlayer::State state)
@@ -327,26 +330,5 @@ void MainWindow::Slot_StateChanged(QtAV::AVPlayer::State state)
 	SetStopState();
 }
 
-bool MainWindow::eventFilter(QObject *obj, QEvent *e)
-{
-	if(obj == ui->loSinVideo) {
-		if(e->type() == QEvent::MouseButtonDblClick || e->type() ==  QEvent::Close) {
-			qDebug()<<"11111111111111111";
-			ExitFullScreen(m_fullscreenindex);
-			return true;
-		} else {
-			return false;
-		}
-	}
-	if(m_singlevideooutput->widget() == obj) {
-		if(e->type() == QEvent::MouseButtonDblClick || e->type() ==  QEvent::Close) {
-			qDebug()<<"11111111111111111";
-			ExitFullScreen(m_fullscreenindex);
-			return true;
-		} else {
-			return false;
-		}
-	}
-	return false;
-}
+
 
