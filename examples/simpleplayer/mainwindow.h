@@ -43,6 +43,7 @@ private slots:
 	void updateSliderUnit();
 	void Slot_ClickBtnGroup(int id);
 	void Slot_StateChanged(QtAV::AVPlayer::State state);
+	void Slot_MediaStateChanged(QMediaPlayer::State state);
 	void on_btnIdle_clicked();
 private:
 	void Play(QString xmlfilename);

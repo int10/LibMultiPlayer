@@ -240,6 +240,7 @@ void MainWindow::Play(QString xmlfilename)
 	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
 	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
 	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
+	connect(m_playergroup, SIGNAL(Signal_mediaStateChanged(QMediaPlayer::State)), SLOT(Slot_MediaStateChanged(QMediaPlayer::State)));
 	m_index = 0;
 	m_fullscreenindex = -1;
 	m_playergroup->Play(m_index);
@@ -329,5 +330,13 @@ void MainWindow::Slot_StateChanged(QtAV::AVPlayer::State state)
 	SetStopState();
 }
 
-
+void MainWindow::Slot_MediaStateChanged(QMediaPlayer::State state)
+{
+	if(QMediaPlayer::StoppedState == state) {
+		m_playergroup->Stop();
+		delete m_playergroup;
+		m_playergroup = NULL;
+	}
+	SetStopState();
+}
 

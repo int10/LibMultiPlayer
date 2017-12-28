@@ -122,24 +122,28 @@ void PlayerGroup::PlayPause()
 		foreach(QtAV::AVPlayer *player, m_playerlist) {
 			player->play();
 		}
+		m_isplaying = true;
 		return;
 	}
 	foreach(QtAV::AVPlayer *player, m_playerlist) {
 		player->pause(!player->isPaused());
 	}
 	m_audioplayer->pause();
+	m_isplaying = false;
 
 #else
 	if (!m_playerlist.at(0)->isPlaying()) {
 		foreach(QtAV::AVPlayer *player, m_playerlist) {
 			player->play();
 		}
+		m_isplaying = true;
 		return;
 	}
 
 	foreach(QtAV::AVPlayer *player, m_playerlist) {
 		player->pause(!player->isPaused());
 	}
+	m_isplaying = false;
 #endif
 }
 
@@ -156,8 +160,21 @@ void PlayerGroup::SwitchAudio(int index)
 	m_audioplayer->setMedia(QUrl::fromLocalFile(m_audiolist.at(index)));
 	m_audioplayer->setPosition(pos);
 	m_audioplayer->play();
+
+	if(m_isplaying == false) {
+		foreach(QtAV::AVPlayer *player, m_playerlist) {
+			player->play();
+		}
+		m_isplaying = true;
+	}
 #else
 	m_playerlist.at(0)->setAudioStream(m_audiolist.at(index));
+	if(m_isplaying == false) {
+		foreach(QtAV::AVPlayer *player, m_playerlist) {
+			player->play();
+		}
+		m_isplaying = true;
+	}
 #endif
 }
 
@@ -167,18 +184,23 @@ void PlayerGroup::Stop()
 		player->stop();
 	}
 	m_audioplayer->stop();
+	m_isplaying = false;
 }
 
 void PlayerGroup::Seek(qint64 value)
 {
 #ifdef USE_QMEDIAPLAYER
 	m_audioplayer->setPosition(value);
+	foreach(QtAV::AVPlayer * player, m_playerlist){
+		player->setPosition(value);
+	}
 #else
 	m_audioplayer->seek(value);
-#endif
 	foreach(QtAV::AVPlayer * player, m_playerlist){
 		player->seek(value);
 	}
+#endif
+
 }
 
 void PlayerGroup::updateSliderUnit()
@@ -188,9 +210,17 @@ void PlayerGroup::updateSliderUnit()
 
 void PlayerGroup::updateSlider(qint64 value)
 {
+	static qint64 tinysync = -3000;
 	qint64 pos = m_audioplayer->position();
 	foreach(QtAV::AVPlayer * player, m_playerlist){
-		player->updateClock(pos);
+		if(player->isPlaying()) {
+			if(pos > tinysync) {
+				if(qAbs(pos - tinysync - player->position()) > 200)	//sync in cast a-v bigger than 200ms;
+					player->updateClock(pos - tinysync);
+				if(qAbs(pos - tinysync - player->position()) > 1000)	//seek in cast a-v bigger than 1s;
+					player->setPosition(pos - tinysync);
+			}
+		}
 	}
 
 	QList<int> poslist;
@@ -212,8 +242,11 @@ void PlayerGroup::updateSlider()
 
 int PlayerGroup::notifyInterval()
 {
-//	return m_audioplayer->notifyInterval();
+#ifdef USE_QMEDIAPLAYER
+	return 1000;
+#else
 	return m_playerlist.at(0)->notifyInterval();
+#endif
 }
 
 qint64 PlayerGroup::position()
