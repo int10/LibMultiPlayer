@@ -210,15 +210,16 @@ void PlayerGroup::updateSliderUnit()
 
 void PlayerGroup::updateSlider(qint64 value)
 {
-	static qint64 tinysync = -3000;
+	static qint64 tinysync = 2000; //if a faster than v ,set a positive num , else negative num.
 	qint64 pos = m_audioplayer->position();
 	foreach(QtAV::AVPlayer * player, m_playerlist){
 		if(player->isPlaying()) {
 			if(pos > tinysync) {
-				if(qAbs(pos - tinysync - player->position()) > 200)	//sync in cast a-v bigger than 200ms;
-					player->updateClock(pos - tinysync);
-				if(qAbs(pos - tinysync - player->position()) > 1000)	//seek in cast a-v bigger than 1s;
-					player->setPosition(pos - tinysync);
+				if(qAbs(pos + tinysync - player->position()) > 1000){	//seek in cast a-v bigger than 1s;
+					player->setPosition(pos + tinysync);
+				} else if(qAbs(pos + tinysync - player->position()) > 200) {	//sync in cast a-v bigger than 200ms;
+					player->updateClock(pos + tinysync);
+				}
 			}
 		}
 	}

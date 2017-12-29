@@ -40,9 +40,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	}
 	m_singlevideooutput = new (QtAV::VideoOutput);
 	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
-	QSlider * sl = new QSlider(ui->page_2);
-	sl->setOrientation(Qt::Horizontal);
-	ui->loSinVideo->addWidget(sl);
+	m_sliderprocess2 = new QSlider(ui->page_2);
+	m_sliderprocess2->setOrientation(Qt::Horizontal);
+	ui->loSinVideo->addWidget(m_sliderprocess2);
+	connect(m_sliderprocess2, SIGNAL(sliderMoved(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
 
 	ui->stackedWidget->setCurrentIndex(0);
 	SetStopState();
@@ -115,6 +116,9 @@ void MainWindow::updateSlider(qint64 value)
 {
 	ui->sliProcess->setRange(0, int(m_playergroup->duration()/m_unit));
 	ui->sliProcess->setValue(int(value/m_unit));
+
+	m_sliderprocess2->setRange(0, int(m_playergroup->duration()/m_unit));
+	m_sliderprocess2->setValue(int(value/m_unit));
 
 	int total_sec = m_playergroup->duration()/1000;
 	int min = total_sec/60;

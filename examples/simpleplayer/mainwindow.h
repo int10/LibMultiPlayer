@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include "ConfigXml.h"
 #include <QButtonGroup>
+#include <QSlider>
 
 namespace Ui {
 class MainWindow;
@@ -67,6 +68,7 @@ private:
 	qint64 m_position;
 	QButtonGroup *m_audiobtngroup;
 	QString m_xmlfilepath;
+	QSlider * m_sliderprocess2;	//single play slider
 };
 
 #endif // MAINWINDOW_H
