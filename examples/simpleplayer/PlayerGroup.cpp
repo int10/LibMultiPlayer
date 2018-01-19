@@ -15,6 +15,7 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist)
 	}
 	m_isplaying = false;
 	m_synctimer = NULL;
+	m_audiopos = 0;
 
 #ifdef USE_QMEDIAPLAYER
 	m_audioplayer = new QMediaPlayer;
@@ -25,14 +26,14 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist)
 
 #else
 	m_audioplayer = new QtAV::AVPlayer;
-	connect(m_playerlist.at(0), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
-	connect(m_playerlist.at(0), SIGNAL(started()), SLOT(updateSlider()));
-	connect(m_playerlist.at(0), SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
-	connect(m_playerlist.at(0), SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
+	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
+	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+	connect(m_audioplayer, SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
 
-	m_synctimer = new QTimer(this);
-	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
-	m_synctimer->start(1000);
+//	m_synctimer = new QTimer(this);
+//	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
+//	m_synctimer->start(1000);
 #endif
 }
 
@@ -48,6 +49,7 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist, QList<QtA
 	}
 	m_isplaying = false;
 	m_synctimer = NULL;
+	m_audiopos = 0;
 
 #ifdef USE_QMEDIAPLAYER
 	m_audioplayer = new QMediaPlayer;
@@ -58,14 +60,14 @@ PlayerGroup::PlayerGroup(QStringList audiolist, QStringList videolist, QList<QtA
 
 #else
 	m_audioplayer = new QtAV::AVPlayer;
-	connect(m_playerlist.at(0), SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
-	connect(m_playerlist.at(0), SIGNAL(started()), SLOT(updateSlider()));
-	connect(m_playerlist.at(0), SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
-	connect(m_playerlist.at(0), SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
+	connect(m_audioplayer, SIGNAL(positionChanged(qint64)), SLOT(updateSlider(qint64)));
+	connect(m_audioplayer, SIGNAL(started()), SLOT(updateSlider()));
+	connect(m_audioplayer, SIGNAL(notifyIntervalChanged()), SLOT(updateSliderUnit()));
+	connect(m_audioplayer, SIGNAL(stateChanged(QtAV::AVPlayer::State)), SLOT(stateChanged(QtAV::AVPlayer::State)));
 
-	m_synctimer = new QTimer(this);
-	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
-	m_synctimer->start(1000);
+//	m_synctimer = new QTimer(this);
+//	connect(m_synctimer, SIGNAL(timeout()), SLOT(timeoutHandle()));
+//	m_synctimer->start(1000);
 #endif
 }
 
@@ -98,7 +100,7 @@ void PlayerGroup::Play(int index)
 			m_audioplayer->setMedia(QUrl::fromLocalFile(m_audiolist.at(index)));
 			m_audioplayer->play();
 		#else
-			m_playerlist.at(i)->setAudioStream(m_audiolist.at(index));
+			m_audioplayer->play(m_audiolist.at(index));
 		#endif
 			m_playerlist.at(i)->play(m_videolist.at(i));
 
@@ -132,10 +134,11 @@ void PlayerGroup::PlayPause()
 	m_isplaying = false;
 
 #else
-	if (!m_playerlist.at(0)->isPlaying()) {
+	if (!m_audioplayer->isPlaying()) {
 		foreach(QtAV::AVPlayer *player, m_playerlist) {
 			player->play();
 		}
+		m_audioplayer->play();
 		m_isplaying = true;
 		return;
 	}
@@ -143,6 +146,7 @@ void PlayerGroup::PlayPause()
 	foreach(QtAV::AVPlayer *player, m_playerlist) {
 		player->pause(!player->isPaused());
 	}
+	m_audioplayer->pause(!m_audioplayer->isPaused());
 	m_isplaying = false;
 #endif
 }
@@ -168,13 +172,18 @@ void PlayerGroup::SwitchAudio(int index)
 		m_isplaying = true;
 	}
 #else
-	m_playerlist.at(0)->setAudioStream(m_audiolist.at(index));
-	if(m_isplaying == false) {
-		foreach(QtAV::AVPlayer *player, m_playerlist) {
-			player->play();
-		}
-		m_isplaying = true;
-	}
+	//m_playerlist.at(0)->setAudioStream(m_audiolist.at(index));
+//	if(m_isplaying == false) {
+//		foreach(QtAV::AVPlayer *player, m_playerlist) {
+//			player->play();
+//		}
+//		m_isplaying = true;
+//	}
+	m_audiopos = m_audioplayer->position();
+	m_audioplayer->stop();
+	m_audioplayer->setFile(m_audiolist.at(index));
+	m_audioplayer->play();
+	//it will seek at slot state change
 #endif
 }
 
@@ -210,7 +219,7 @@ void PlayerGroup::updateSliderUnit()
 
 void PlayerGroup::updateSlider(qint64 value)
 {
-	static qint64 tinysync = 2000; //if a faster than v ,set a positive num , else negative num.
+	static qint64 tinysync = 0; //if a faster than v ,set a positive num , else negative num.
 	qint64 pos = m_audioplayer->position();
 	foreach(QtAV::AVPlayer * player, m_playerlist){
 		if(player->isPlaying()) {
@@ -231,8 +240,6 @@ void PlayerGroup::updateSlider(qint64 value)
 	}
 	qDebug()<<poslist;
 
-
-
 	emit Signal_PositionChanged(value);
 }
 
@@ -246,7 +253,7 @@ int PlayerGroup::notifyInterval()
 #ifdef USE_QMEDIAPLAYER
 	return 1000;
 #else
-	return m_playerlist.at(0)->notifyInterval();
+	return m_audioplayer->notifyInterval();
 #endif
 }
 
@@ -255,7 +262,7 @@ qint64 PlayerGroup::position()
 #ifdef USE_QMEDIAPLAYER
 	return m_audioplayer->position();
 #else
-	return m_playerlist.at(0)->position();
+	return m_audioplayer->position();
 #endif
 }
 
@@ -264,12 +271,24 @@ qint64 PlayerGroup::duration()
 #ifdef USE_QMEDIAPLAYER
 	return m_audioplayer->duration();
 #else
-	return m_playerlist.at(0)->duration();
+	return m_audioplayer->duration();
 #endif
 }
 
 void PlayerGroup::stateChanged(QtAV::AVPlayer::State state)
 {
+	if(QtAV::AVPlayer::PlayingState == state) {
+		if(m_audiopos != 0) {
+			m_audioplayer->seek(m_audiopos);
+			m_audiopos = 0;
+			if(m_isplaying == false) {
+				foreach(QtAV::AVPlayer *player, m_playerlist) {
+					player->play();
+				}
+				m_isplaying = true;
+			}
+		}
+	}
 	emit Signal_StateChanged(state);
 }
 

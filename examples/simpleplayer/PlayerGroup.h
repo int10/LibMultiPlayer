@@ -6,7 +6,7 @@
 #include <QMediaPlayer>
 #include "QtAV.h"
 
-#define USE_QMEDIAPLAYER
+//#define USE_QMEDIAPLAYER
 
 #define MAX_VIDEO_OUT		(6)
 #define MAX_AUDIO_FILE		(4)
@@ -60,6 +60,7 @@ private:
 #endif
 	bool m_isplaying;
 	int m_curaudioindex;
+	qint64 m_audiopos;
 };
 
 #endif // PLAYERGROUP_H
