@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QVBoxLayout>
 #include <QSlider>
+#define VERSION "1.2"
 
 using namespace QtAV;
 MainWindow::MainWindow(QWidget *parent) :
@@ -48,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->stackedWidget->setCurrentIndex(0);
 	SetStopState();
 	ui->btnIdle->setVisible(false);
+
+	this->setWindowTitle(QString("Multi player ") + VERSION);
 
 	setAcceptDrops(true);
 }
