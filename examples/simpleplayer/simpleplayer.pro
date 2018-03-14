@@ -14,3 +14,5 @@ FORMS +=
 HEADERS +=
 
 SOURCES +=
+
+RC_FILE = Player.rc

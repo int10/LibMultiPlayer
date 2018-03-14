@@ -53,6 +53,14 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->setWindowTitle(QString("Multi player ") + VERSION);
 
 	setAcceptDrops(true);
+
+	/// 设置控件stylesheet ///
+	QFile qssfile(QApplication::applicationDirPath() + "/skin.qss");
+	qssfile.open(QIODevice::ReadOnly);
+	qApp->setStyleSheet(qssfile.readAll());
+	qssfile.close();
+
+	Play();
 }
 
 MainWindow::~MainWindow()
@@ -254,6 +262,13 @@ void MainWindow::Play(QString xmlfilename)
 	m_audiobtngroup->button(m_index)->setChecked(true);
 	m_xmlfilepath = xmlfilename;
 
+}
+
+void MainWindow::Play()
+{
+	QDir curdir(QApplication::applicationDirPath());
+	QList<QString> filelist = curdir.entryList(QDir::Files);
+	qDebug()<<filelist;
 }
 
 void MainWindow::on_sliProcess_sliderMoved(int position)

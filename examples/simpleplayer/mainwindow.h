@@ -48,6 +48,7 @@ private slots:
 	void on_btnIdle_clicked();
 private:
 	void Play(QString xmlfilename);
+	void Play();
 	void PlayFullScreen(int index);
 	void ExitFullScreen(int index);
 	void SetStopState();
