@@ -266,10 +266,13 @@ void MainWindow::Play(QString xmlfilename)
 
 void MainWindow::Play()
 {
-	QDir curdir(QApplication::applicationDirPath());
+	QString strpath = QApplication::applicationDirPath();
+	QDir curdir(strpath);
 	QStringList filelist = curdir.entryList(QDir::Files);
-	qDebug()<<filelist;
+
 	m_audiolist.clear();
+	m_videolist.clear();
+	//获取音频文件
 	QList<QRegExp> audioreglist;
 	audioreglist.append(QRegExp("^1_.+\\.mp3"));
 	audioreglist.append(QRegExp("^2_.+\\.mp3"));
@@ -281,7 +284,7 @@ void MainWindow::Play()
 		for(i = 0; i < filelist.size(); i++) {
 			QString filename = filelist.at(i);
 			if(filename.contains(rx)){
-				m_audiolist.append(filename);
+				m_audiolist.append(strpath + "/" + filename);
 				break;
 			}
 		}
@@ -289,20 +292,23 @@ void MainWindow::Play()
 			m_audiolist.append("");//if not found , add null string to it
 		}
 	}
-	qDebug()<<m_audiolist;
+	qDebug()<<"Audio list:"<<m_audiolist;
 
+	//获取视频文件
 	QList<QRegExp> videoreglist;
-	videoreglist.append(QRegExp("^1_.+\\.mp3"));
-	videoreglist.append(QRegExp("^2_.+\\.mp3"));
-	videoreglist.append(QRegExp("^3_.+\\.mp3"));
-	videoreglist.append(QRegExp("^4_.+\\.mp3"));
+	videoreglist.append(QRegExp("^Court_1-1-.+\\.asf"));
+	videoreglist.append(QRegExp("^Court_1-2-.+\\.asf"));
+	videoreglist.append(QRegExp("^Court_1-3-.+\\.asf"));
+	videoreglist.append(QRegExp("^Court_1-4-.+\\.asf"));
+	videoreglist.append(QRegExp("^Court_1-5-.+\\.asf"));
+	videoreglist.append(QRegExp("^Court_1-20-.+\\.asf"));
 
 	foreach (QRegExp rx, videoreglist) {
 		int i;
 		for(i = 0; i < filelist.size(); i++) {
 			QString filename = filelist.at(i);
 			if(filename.contains(rx)){
-				m_videolist.append(filename);
+				m_videolist.append(strpath + "/" + filename);
 				break;
 			}
 		}
@@ -310,8 +316,28 @@ void MainWindow::Play()
 			m_videolist.append("");//if not found , add null string to it
 		}
 	}
-	qDebug()<<m_videolist;
+	qDebug()<<"Video List:"<<m_videolist;
 
+	if(m_playergroup) {
+		m_playergroup->Stop();
+		delete m_playergroup;
+	}
+	QList<QtAV::VideoOutput *> output;
+	foreach(sVideoWindow *vo, m_videoout) {
+		output.append(vo->output);
+	}
+
+	SetPlayState(m_audiolist);
+	m_playergroup = new PlayerGroup(m_audiolist, m_videolist, output);
+
+	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
+	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
+	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
+	connect(m_playergroup, SIGNAL(Signal_mediaStateChanged(QMediaPlayer::State)), SLOT(Slot_MediaStateChanged(QMediaPlayer::State)));
+	m_index = 0;
+	m_fullscreenindex = -1;
+	m_playergroup->Play(m_index);
+	m_audiobtngroup->button(m_index)->setChecked(true);
 }
 
 void MainWindow::on_sliProcess_sliderMoved(int position)
@@ -378,6 +404,20 @@ void MainWindow::SetPlayState(QList<sAudioInfo> audiolist)
 		} else {
 			m_audiobtngroup->buttons().at(i)->setEnabled(false);
 			m_audiobtngroup->buttons().at(i)->setText(QString::number(i+1));
+		}
+	}
+	ui->btnPlayPause->setEnabled(true);
+	ui->btnStop->setEnabled(true);
+	ui->sliProcess->setEnabled(true);
+}
+
+void MainWindow::SetPlayState(QStringList audiolist)
+{
+	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
+		if(m_audiolist.at(i) == ""){
+			m_audiobtngroup->buttons().at(i)->setEnabled(false);
+		} else {
+			m_audiobtngroup->buttons().at(i)->setEnabled(true);
 		}
 	}
 	ui->btnPlayPause->setEnabled(true);

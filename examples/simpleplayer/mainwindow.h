@@ -53,6 +53,7 @@ private:
 	void ExitFullScreen(int index);
 	void SetStopState();
 	void SetPlayState(QList<sAudioInfo> audiocount);
+	void SetPlayState(QStringList audiolist);
 
 protected:
 	void dragEnterEvent(QDragEnterEvent *event);
