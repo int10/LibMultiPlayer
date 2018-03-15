@@ -70,6 +70,8 @@ private:
 	QButtonGroup *m_audiobtngroup;
 	QString m_xmlfilepath;
 	QSlider * m_sliderprocess2;	//single play slider
+	QStringList m_audiolist;
+	QStringList m_videolist;
 };
 
 #endif // MAINWINDOW_H

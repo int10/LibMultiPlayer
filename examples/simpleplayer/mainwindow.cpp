@@ -267,8 +267,51 @@ void MainWindow::Play(QString xmlfilename)
 void MainWindow::Play()
 {
 	QDir curdir(QApplication::applicationDirPath());
-	QList<QString> filelist = curdir.entryList(QDir::Files);
+	QStringList filelist = curdir.entryList(QDir::Files);
 	qDebug()<<filelist;
+	m_audiolist.clear();
+	QList<QRegExp> audioreglist;
+	audioreglist.append(QRegExp("^1_.+\\.mp3"));
+	audioreglist.append(QRegExp("^2_.+\\.mp3"));
+	audioreglist.append(QRegExp("^3_.+\\.mp3"));
+	audioreglist.append(QRegExp("^4_.+\\.mp3"));
+
+	foreach (QRegExp rx, audioreglist) {
+		int i;
+		for(i = 0; i < filelist.size(); i++) {
+			QString filename = filelist.at(i);
+			if(filename.contains(rx)){
+				m_audiolist.append(filename);
+				break;
+			}
+		}
+		if(i >= filelist.size()){
+			m_audiolist.append("");//if not found , add null string to it
+		}
+	}
+	qDebug()<<m_audiolist;
+
+	QList<QRegExp> videoreglist;
+	videoreglist.append(QRegExp("^1_.+\\.mp3"));
+	videoreglist.append(QRegExp("^2_.+\\.mp3"));
+	videoreglist.append(QRegExp("^3_.+\\.mp3"));
+	videoreglist.append(QRegExp("^4_.+\\.mp3"));
+
+	foreach (QRegExp rx, videoreglist) {
+		int i;
+		for(i = 0; i < filelist.size(); i++) {
+			QString filename = filelist.at(i);
+			if(filename.contains(rx)){
+				m_videolist.append(filename);
+				break;
+			}
+		}
+		if(i >= filelist.size()){
+			m_videolist.append("");//if not found , add null string to it
+		}
+	}
+	qDebug()<<m_videolist;
+
 }
 
 void MainWindow::on_sliProcess_sliderMoved(int position)
