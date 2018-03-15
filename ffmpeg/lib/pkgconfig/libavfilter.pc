@@ -1,0 +1,14 @@
+prefix=/home/int10/ffmpeg
+exec_prefix=${prefix}
+libdir=/home/int10/ffmpeg/lib
+includedir=/home/int10/ffmpeg/include
+
+Name: libavfilter
+Description: FFmpeg audio/video filtering library
+Version: 6.107.100
+Requires: libswscale >= 4.8.100, libavformat >= 57.83.100, libavcodec >= 57.107.100, libswresample >= 2.9.100, libavutil >= 55.78.100
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavfilter -lgdi32 -lpsapi -lole32 -lstrmiids -luuid -loleaut32 -lshlwapi -luser32 -lws2_32 -lvfw32 -luser32 -lm -lz -lpsapi -ladvapi32 -lshell32 -lole32
+Libs.private: 
+Cflags: -I${includedir}
