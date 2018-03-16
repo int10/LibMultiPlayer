@@ -385,7 +385,7 @@ void MainWindow::SetStopState()
 {
 	for(int i = 0; i < m_audiobtngroup->buttons().size(); i++) {
 		m_audiobtngroup->buttons().at(i)->setEnabled(false);
-		m_audiobtngroup->buttons().at(i)->setText(QString::number(i));
+		//m_audiobtngroup->buttons().at(i)->setText(QString::number(i));
 	}
 
 	ui->btnPlayPause->setEnabled(false);

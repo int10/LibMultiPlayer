@@ -14,7 +14,6 @@ class PlayerGroup : public QObject
 {
 	Q_OBJECT
 public:
-	PlayerGroup(QStringList audiolist, QStringList videolist);
 	PlayerGroup(QStringList audiolist, QStringList videolist, QList<QtAV::VideoOutput *> videooutput);
 	~PlayerGroup();
 
@@ -42,7 +41,6 @@ private slots:
 	void updateSliderUnit();
 	void updateSlider(qint64 value);
 	void updateSlider();
-	void timeoutHandle();
 	void stateChanged(QtAV::AVPlayer::State state);
 	void mediaStateChanged(QMediaPlayer::State state);
 
@@ -52,7 +50,6 @@ private:
 	QList<QtAV::VideoOutput *> m_volist;
 	QList<QtAV::AVPlayer *> m_playerlist;
 	QtAV::AVClock m_mainclock;
-	QTimer * m_synctimer;
 #ifdef USE_QMEDIAPLAYER
 	QMediaPlayer * m_audioplayer;
 #else

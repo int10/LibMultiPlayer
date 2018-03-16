@@ -1,0 +1,22 @@
+/*--- MainWindow ---*/
+QMainWindow#MainWindow > QWidget#centralwidget{background-color: rgb(64, 64, 64);}
+
+QLabel{font: "微软雅黑"; color: rgb(255, 255, 255); }
+QGroupBox {
+        font-size: 15px;
+        border: 1px solid rgb(80, 80, 80);
+        border-radius: 4px;
+        margin-top: 10px;
+}
+QGroupBox::title {
+        color: rgb(255, 255, 255);
+        top: -5px;
+        left: 10px;
+}
+
+QGroupBox#gbAudio > QPushButton{ border-image: url(images/AudioNormal.png); }
+QGroupBox#gbAudio > QPushButton:disabled{ border-image: url(images/AudioDisabled.png); }
+QGroupBox#gbAudio > QPushButton:checked{ border-image: url(images/AudioChecked.png); }
+QGroupBox#gbAudio > QPushButton:hover{ border-image: url(images/AudioHover.png); }
+QGroupBox#gbAudio > QPushButton:pressed{ border-image: url(images/AudioPressed.png); }
+
