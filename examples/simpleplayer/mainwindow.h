@@ -33,7 +33,8 @@ public:
 
 private slots:
 	void on_btnOpen_clicked();
-	void on_btnPlayPause_clicked();
+	void on_btnPlay_clicked();
+	void on_btnPause_clicked();
 	void on_btnStop_clicked();
 	void seekBySlider(int value);
 	void seekBySlider();
@@ -46,13 +47,14 @@ private slots:
 	void Slot_StateChanged(QtAV::AVPlayer::State state);
 	void Slot_MediaStateChanged(QMediaPlayer::State state);
 	void on_btnIdle_clicked();
+
 private:
-	void Play(QString xmlfilename);
+//	void Play(QString xmlfilename);
 	void Play();
 	void PlayFullScreen(int index);
 	void ExitFullScreen(int index);
 	void SetStopState();
-	void SetPlayState(QList<sAudioInfo> audiocount);
+//	void SetPlayState(QList<sAudioInfo> audiocount);
 	void SetPlayState(QStringList audiolist);
 
 protected:

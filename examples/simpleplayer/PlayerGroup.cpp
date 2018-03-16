@@ -104,8 +104,10 @@ void PlayerGroup::PlayPause()
 	m_isplaying = false;
 
 #else
+	//好忧伤，原来理解错了，AVPlayer的isPlaying在pause状态下也是返回true的。。导致这个类的IsPlaying的返回值跟AVPlayer的返回值对不上，这里要留意一下。
+	qDebug()<<"play pause:"<< m_audioplayer->isPaused()<<m_audioplayer->isPlaying();
 	if (!m_audioplayer->isPlaying()) {
-		foreach(QtAV::AVPlayer *player, m_playerlist) {
+			foreach(QtAV::AVPlayer *player, m_playerlist) {
 			if(player){
 				player->play();
 			}
@@ -121,7 +123,12 @@ void PlayerGroup::PlayPause()
 		}
 	}
 	m_audioplayer->pause(!m_audioplayer->isPaused());
-	m_isplaying = false;
+	if(m_audioplayer->isPaused()) {
+		m_isplaying = false;
+	} else {
+		m_isplaying = true;
+	}
+
 #endif
 }
 
@@ -208,16 +215,16 @@ void PlayerGroup::updateSlider(qint64 value)
 		}
 	}
 
-	QList<int> poslist;
-	poslist.append(m_audioplayer->position());
-	foreach(QtAV::AVPlayer * player, m_playerlist){
-		if(player) {
-			poslist.append(player->position());
-		} else {
-			poslist.append(0);
-		}
-	}
-	qDebug()<<poslist;
+//	QList<int> poslist;
+//	poslist.append(m_audioplayer->position());
+//	foreach(QtAV::AVPlayer * player, m_playerlist){
+//		if(player) {
+//			poslist.append(player->position());
+//		} else {
+//			poslist.append(0);
+//		}
+//	}
+//	qDebug()<<poslist;
 
 	emit Signal_PositionChanged(value);
 }

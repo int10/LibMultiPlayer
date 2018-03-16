@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_index = 0;
 	m_xmlfilepath = "";
 	m_fullscreenindex = -1;
+	QStringList videolabel;
+	videolabel<<"律师"<<"法官"<<"检察官"<<"嫌犯"<<"近镜证人"<<"证人";
 	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
 		sVideoWindow * vo = new sVideoWindow;
 		vo->label = new QLabel;
@@ -23,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
 		QVBoxLayout *vl =  new QVBoxLayout();
 		vo->label->setText("NULL");
 		vo->label->setAlignment(Qt::AlignHCenter);
+		vo->label->setStyleSheet("font: 15pt \"微软雅黑\"; color: rgb(255, 255, 255);");
+		vo->label->setText(videolabel.at(i));
 		vl->addWidget(vo->label);
 		vl->addWidget(vo->output->widget());
 		vl->setStretch(0,0);
@@ -49,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->stackedWidget->setCurrentIndex(0);
 	SetStopState();
 	ui->btnIdle->setVisible(false);
+	ui->btnOpen->setVisible(false);
 
 	this->setWindowTitle(QString("Multi player ") + VERSION);
 
@@ -105,16 +110,27 @@ void MainWindow::seekBySlider()
 
 void MainWindow::on_btnOpen_clicked()
 {
-	QString file = QFileDialog::getOpenFileName(0, tr("Open a xml"), "", "xml file(*.xml)");
-	if (file.isEmpty()) {
-		return;
-	}
-	Play(file);
+//	QString file = QFileDialog::getOpenFileName(0, tr("Open a xml"), "", "xml file(*.xml)");
+//	if (file.isEmpty()) {
+//		return;
+//	}
+//	Play(file);
 }
 
-void MainWindow::on_btnPlayPause_clicked()
+void MainWindow::on_btnPlay_clicked()
 {
+	if(m_playergroup->IsPlaying()) return;
 	m_playergroup->PlayPause();
+	ui->btnPlay->setVisible(false);
+	ui->btnPause->setVisible(true);
+}
+
+void MainWindow::on_btnPause_clicked()
+{
+	if(!m_playergroup->IsPlaying()) return;
+	m_playergroup->PlayPause();
+	ui->btnPlay->setVisible(true);
+	ui->btnPause->setVisible(false);
 }
 
 void MainWindow::on_btnStop_clicked()
@@ -164,20 +180,20 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
-	QList<QUrl> urls = event->mimeData()->urls();
+//	QList<QUrl> urls = event->mimeData()->urls();
 
-	if (urls.isEmpty()) {
-		return;
-	}
+//	if (urls.isEmpty()) {
+//		return;
+//	}
 
-	QString fileName = urls.first().toLocalFile();
-	if (fileName.isEmpty()) {
-		return;
-	}
-	if(!fileName.endsWith(".xml")){
-		return;
-	}
-	Play(fileName);
+//	QString fileName = urls.first().toLocalFile();
+//	if (fileName.isEmpty()) {
+//		return;
+//	}
+//	if(!fileName.endsWith(".xml")){
+//		return;
+//	}
+//	Play(fileName);
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
@@ -202,67 +218,67 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 }
 
 
-void MainWindow::Play(QString xmlfilename)
-{
-	QFileInfo fileinfo(xmlfilename);
-	QList<sAudioInfo> audiolist;
-	QList<sVideoInfo> videolist;
-	ConfigXml xml;
-	if(!xml.ParseXml(xmlfilename, audiolist, videolist)) {
-		QMessageBox::critical(this, "error", "Can't parse the xml!");
-		return;
-	}
-
-	QStringList audiofilelist;
-	QStringList videofilelist;
-#if 0
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/1_20171017170849.mp3");
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/2_20171017170849.mp3");
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/3_20171017170849.mp3");
-	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/4_20171017170849.mp3");
-
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-1-20171017170848966.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-2-20171017170849018.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-3-20171017170849174.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-4-20171017170849207.asf");
-	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-5-20171017170848962.asf");
-#else
-	foreach(sAudioInfo ainfo, audiolist) {
-		audiofilelist.append(fileinfo.absolutePath() + "/" + ainfo.file);
-	}
-
-	for(int i = 0; i < videolist.size(); i++) {
-		videofilelist.append(fileinfo.absolutePath() + "/" + videolist.at(i).file);
-		m_videoout[i]->label->setText(videolist.at(i).desc);
-	}
-//	foreach(sVideoInfo vinfo, videolist) {
-//		videofilelist.append(fileinfo.absolutePath() + "/" + vinfo.file);
+//void MainWindow::Play(QString xmlfilename)
+//{
+//	QFileInfo fileinfo(xmlfilename);
+//	QList<sAudioInfo> audiolist;
+//	QList<sVideoInfo> videolist;
+//	ConfigXml xml;
+//	if(!xml.ParseXml(xmlfilename, audiolist, videolist)) {
+//		QMessageBox::critical(this, "error", "Can't parse the xml!");
+//		return;
 //	}
 
-#endif
-	if(m_playergroup) {
-		m_playergroup->Stop();
-		delete m_playergroup;
-	}
-	QList<QtAV::VideoOutput *> output;
-	foreach(sVideoWindow *vo, m_videoout) {
-		output.append(vo->output);
-	}
+//	QStringList audiofilelist;
+//	QStringList videofilelist;
+//#if 0
+//	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/1_20171017170849.mp3");
+//	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/2_20171017170849.mp3");
+//	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/3_20171017170849.mp3");
+//	audiolist.append("E:/SysFolder/Desktop/Court_1_20171017/4_20171017170849.mp3");
 
-	SetPlayState(audiolist);
-	m_playergroup = new PlayerGroup(audiofilelist, videofilelist, output);
+//	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-1-20171017170848966.asf");
+//	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-2-20171017170849018.asf");
+//	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-3-20171017170849174.asf");
+//	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-4-20171017170849207.asf");
+//	videolist.append("E:/SysFolder/Desktop/Court_1_20171017/Court_1-5-20171017170848962.asf");
+//#else
+//	foreach(sAudioInfo ainfo, audiolist) {
+//		audiofilelist.append(fileinfo.absolutePath() + "/" + ainfo.file);
+//	}
 
-	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
-	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
-	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
-	connect(m_playergroup, SIGNAL(Signal_mediaStateChanged(QMediaPlayer::State)), SLOT(Slot_MediaStateChanged(QMediaPlayer::State)));
-	m_index = 0;
-	m_fullscreenindex = -1;
-	m_playergroup->Play(m_index);
-	m_audiobtngroup->button(m_index)->setChecked(true);
-	m_xmlfilepath = xmlfilename;
+//	for(int i = 0; i < videolist.size(); i++) {
+//		videofilelist.append(fileinfo.absolutePath() + "/" + videolist.at(i).file);
+//		m_videoout[i]->label->setText(videolist.at(i).desc);
+//	}
+////	foreach(sVideoInfo vinfo, videolist) {
+////		videofilelist.append(fileinfo.absolutePath() + "/" + vinfo.file);
+////	}
 
-}
+//#endif
+//	if(m_playergroup) {
+//		m_playergroup->Stop();
+//		delete m_playergroup;
+//	}
+//	QList<QtAV::VideoOutput *> output;
+//	foreach(sVideoWindow *vo, m_videoout) {
+//		output.append(vo->output);
+//	}
+
+//	SetPlayState(audiolist);
+//	m_playergroup = new PlayerGroup(audiofilelist, videofilelist, output);
+
+//	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
+//	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
+//	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
+//	connect(m_playergroup, SIGNAL(Signal_mediaStateChanged(QMediaPlayer::State)), SLOT(Slot_MediaStateChanged(QMediaPlayer::State)));
+//	m_index = 0;
+//	m_fullscreenindex = -1;
+//	m_playergroup->Play(m_index);
+//	m_audiobtngroup->button(m_index)->setChecked(true);
+//	m_xmlfilepath = xmlfilename;
+
+//}
 
 void MainWindow::Play()
 {
@@ -388,28 +404,29 @@ void MainWindow::SetStopState()
 		//m_audiobtngroup->buttons().at(i)->setText(QString::number(i));
 	}
 
-	ui->btnPlayPause->setEnabled(false);
+	ui->btnPlay->setEnabled(false);
+	ui->btnPause->setEnabled(false);
 	ui->btnStop->setEnabled(false);
 	ui->sliProcess->setEnabled(false);
 	ui->stackedWidget->setCurrentIndex(0);
 	ExitFullScreen(m_fullscreenindex);
 }
 
-void MainWindow::SetPlayState(QList<sAudioInfo> audiolist)
-{
-	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
-		if(i < audiolist.size()) {
-			m_audiobtngroup->buttons().at(i)->setEnabled(true);
-			m_audiobtngroup->buttons().at(i)->setText(audiolist.at(i).desc);
-		} else {
-			m_audiobtngroup->buttons().at(i)->setEnabled(false);
-			m_audiobtngroup->buttons().at(i)->setText(QString::number(i+1));
-		}
-	}
-	ui->btnPlayPause->setEnabled(true);
-	ui->btnStop->setEnabled(true);
-	ui->sliProcess->setEnabled(true);
-}
+//void MainWindow::SetPlayState(QList<sAudioInfo> audiolist)
+//{
+//	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
+//		if(i < audiolist.size()) {
+//			m_audiobtngroup->buttons().at(i)->setEnabled(true);
+//			m_audiobtngroup->buttons().at(i)->setText(audiolist.at(i).desc);
+//		} else {
+//			m_audiobtngroup->buttons().at(i)->setEnabled(false);
+//			m_audiobtngroup->buttons().at(i)->setText(QString::number(i+1));
+//		}
+//	}
+//	ui->btnPlayPause->setEnabled(true);
+//	ui->btnStop->setEnabled(true);
+//	ui->sliProcess->setEnabled(true);
+//}
 
 void MainWindow::SetPlayState(QStringList audiolist)
 {
@@ -420,7 +437,9 @@ void MainWindow::SetPlayState(QStringList audiolist)
 			m_audiobtngroup->buttons().at(i)->setEnabled(true);
 		}
 	}
-	ui->btnPlayPause->setEnabled(true);
+	ui->btnPlay->setEnabled(true);
+	ui->btnPlay->setVisible(false);
+	ui->btnPause->setEnabled(true);
 	ui->btnStop->setEnabled(true);
 	ui->sliProcess->setEnabled(true);
 }
