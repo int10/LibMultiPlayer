@@ -20,3 +20,18 @@ QGroupBox#gbAudio > QPushButton:checked{ border-image: url(images/AudioChecked.p
 QGroupBox#gbAudio > QPushButton:hover{ border-image: url(images/AudioHover.png); }
 QGroupBox#gbAudio > QPushButton:pressed{ border-image: url(images/AudioPressed.png); }
 
+QPushButton#btnPlay{ border-image: url(images/PlayNormal.png); }
+QPushButton#btnPlay:disabled{ border-image: url(images/PlayDisabled.png); }
+QPushButton#btnPlay:hover{ border-image: url(images/PlayHover.png); }
+QPushButton#btnPlay:pressed{ border-image: url(images/PlayPressed.png); }
+
+
+QPushButton#btnPause{ border-image: url(images/PauseNormal.png); }
+QPushButton#btnPause:disabled{ border-image: url(images/PauseDisabled.png); }
+QPushButton#btnPause:hover{ border-image: url(images/PauseHover.png); }
+QPushButton#btnPause:pressed{ border-image: url(images/PausePressed.png); }
+
+QPushButton#btnStop{ border-image: url(images/StopNormal.png); }
+QPushButton#btnStop:disabled{ border-image: url(images/StopDisabled.png); }
+QPushButton#btnStop:hover{ border-image: url(images/StopHover.png); }
+QPushButton#btnStop:pressed{ border-image: url(images/StopPressed.png); }
