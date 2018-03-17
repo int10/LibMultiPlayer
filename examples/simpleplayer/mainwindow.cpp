@@ -1,10 +1,10 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QVBoxLayout>
 #include <QSlider>
 #include <QSettings>
 #include <QMessageBox>
-#define VERSION "1.2"
+#define VERSION "1.3"
 
 using namespace QtAV;
 MainWindow::MainWindow(QWidget *parent) :
@@ -345,7 +345,15 @@ bool MainWindow::PrepareFileList()
 		}
 	}
 	qDebug()<<"Audio list:"<<m_audiolist;
-	if(0 == m_audiolist.size()) {
+	bool noaudio = true;
+	foreach(QString audioname, m_audiolist) {
+		if(audioname != "") {
+			noaudio = false;
+			break;
+		}
+	}
+	if(noaudio == true) {
+		QMessageBox::information(this, "Error", "找不到音频文件！");
 		return false;
 	}
 
@@ -378,9 +386,18 @@ bool MainWindow::PrepareFileList()
 		}
 	}
 	qDebug()<<m_videolist;
-	if(0 == m_videolist.size()) {
+	bool novideo = true;
+	foreach(QString videoname, m_videolist) {
+		if(videoname != "") {
+			novideo = false;
+			break;
+		}
+	}
+	if(novideo == true) {
+		QMessageBox::information(this, "Error", "找不到视频文件！");
 		return false;
 	}
+
 	return true;
 }
 
