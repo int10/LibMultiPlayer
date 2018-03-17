@@ -7,8 +7,6 @@
 #include "QtAV.h"
 
 //#define USE_QMEDIAPLAYER
-
-#define MAX_VIDEO_OUT		(6)
 #define MAX_AUDIO_FILE		(4)
 class PlayerGroup : public QObject
 {
@@ -30,7 +28,7 @@ public:
 	QList<QtAV::VideoOutput *> GetVideoOutput();
 	bool AddVideoOutput(int index, QtAV::VideoOutput * output);
 	void RemoveVideoOutput(int index, QtAV::VideoOutput * output);
-
+	void SetVolume(int value);
 signals:
 	void Signal_UpdateSliderUnit();
 	void Signal_PositionChanged(qint64 value);

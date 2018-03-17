@@ -47,6 +47,9 @@ private slots:
 	void Slot_StateChanged(QtAV::AVPlayer::State state);
 	void Slot_MediaStateChanged(QMediaPlayer::State state);
 	void on_btnIdle_clicked();
+	void on_sliVolume_sliderPressed();
+
+	void on_sliVolume_valueChanged(int value);
 
 private:
 //	void Play(QString xmlfilename);
@@ -56,7 +59,9 @@ private:
 	void SetStopState();
 //	void SetPlayState(QList<sAudioInfo> audiocount);
 	void SetPlayState(QStringList audiolist);
-
+	bool PrepareFileList();
+	void InitVideoInterface();
+	void SetVolume();
 protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
@@ -75,6 +80,7 @@ private:
 	QSlider * m_sliderprocess2;	//single play slider
 	QStringList m_audiolist;
 	QStringList m_videolist;
+
 };
 
 #endif // MAINWINDOW_H

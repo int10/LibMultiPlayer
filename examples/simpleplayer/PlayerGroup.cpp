@@ -306,3 +306,15 @@ void PlayerGroup::RemoveVideoOutput(int index, QtAV::VideoOutput * output)
 	if(!m_playerlist.at(index)->isPlaying()) return;
 	m_playerlist.at(index)->removeVideoRenderer(output);
 }
+
+void PlayerGroup::SetVolume(int value)
+{
+	qreal kVolumeInterval = 0.04;
+	QtAV::AudioOutput *ao = m_audioplayer ? m_audioplayer->audio() : 0;
+	qreal v = qreal(value)*kVolumeInterval;
+	if (ao) {
+		if (qAbs(int(ao->volume()/kVolumeInterval) - value) >= int(0.1/kVolumeInterval)) {
+			ao->setVolume(v);
+		}
+	}
+}

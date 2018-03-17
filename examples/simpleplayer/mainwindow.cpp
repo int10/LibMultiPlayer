@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QVBoxLayout>
 #include <QSlider>
+#include <QSettings>
+#include <QMessageBox>
 #define VERSION "1.2"
 
 using namespace QtAV;
@@ -16,24 +18,17 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_index = 0;
 	m_xmlfilepath = "";
 	m_fullscreenindex = -1;
-	QStringList videolabel;
-	videolabel<<"律师"<<"法官"<<"检察官"<<"嫌犯"<<"近镜证人"<<"证人";
-	for(int i = 0; i < MAX_VIDEO_OUT; i++) {
-		sVideoWindow * vo = new sVideoWindow;
-		vo->label = new QLabel;
-		vo->output = new (QtAV::VideoOutput);
-		QVBoxLayout *vl =  new QVBoxLayout();
-		vo->label->setText("NULL");
-		vo->label->setAlignment(Qt::AlignHCenter);
-		vo->label->setStyleSheet("font: 15pt \"微软雅黑\"; color: rgb(255, 255, 255);");
-		vo->label->setText(videolabel.at(i));
-		vl->addWidget(vo->label);
-		vl->addWidget(vo->output->widget());
-		vl->setStretch(0,0);
-		vl->setStretch(1,1);
-		ui->loVideoList->addLayout(vl, (i < 3)?0:1, i%3);
-		m_videoout.append(vo);
+	m_singlevideooutput = NULL;
+	m_videoout.clear();
+	this->setWindowTitle(QString("Multi player ") + VERSION);
+
+	/// 设置控件stylesheet ///
+	QFile qssfile(QApplication::applicationDirPath() + "/skin.qss");
+	if(qssfile.open(QIODevice::ReadOnly)){
+		qApp->setStyleSheet(qssfile.readAll());
+		qssfile.close();
 	}
+
 	m_audiobtngroup = new QButtonGroup(this);
 	m_audiobtngroup->addButton(ui->btnAudio1, 0);
 	m_audiobtngroup->addButton(ui->btnAudio2, 1);
@@ -43,29 +38,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	foreach(QAbstractButton * btn, m_audiobtngroup->buttons()) {
 		btn->setCheckable(true);
 	}
-	m_singlevideooutput = new (QtAV::VideoOutput);
-	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
-	m_sliderprocess2 = new QSlider(ui->page_2);
-	m_sliderprocess2->setOrientation(Qt::Horizontal);
-	ui->loSinVideo->addWidget(m_sliderprocess2);
-	connect(m_sliderprocess2, SIGNAL(sliderMoved(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
 
-	ui->stackedWidget->setCurrentIndex(0);
 	SetStopState();
 	ui->btnIdle->setVisible(false);
 	ui->btnOpen->setVisible(false);
-
-	this->setWindowTitle(QString("Multi player ") + VERSION);
+	ui->sliVolume->setMaximum(100);
+	ui->sliVolume->setValue(100);
 
 	setAcceptDrops(true);
 
-	/// 设置控件stylesheet ///
-	QFile qssfile(QApplication::applicationDirPath() + "/skin.qss");
-	qssfile.open(QIODevice::ReadOnly);
-	qApp->setStyleSheet(qssfile.readAll());
-	qssfile.close();
-
-	Play();
+	if(PrepareFileList()){
+		InitVideoInterface();
+		Play();
+	}
 }
 
 MainWindow::~MainWindow()
@@ -94,13 +79,54 @@ MainWindow::~MainWindow()
 	delete ui;
 }
 
+void MainWindow::InitVideoInterface()
+{
+	QStringList videolabel;
+	QString labelstyple("QLabel{font: 15pt \"微软雅黑\"; color: rgb(255, 255, 255);  }");
+	videolabel<<"律师"<<"法官"<<"检察官"<<"嫌犯"<<"近镜证人"<<"证人"<<"隐蔽证人";
+	for(int i = 0; i < videolabel.size() - 1; i++) {//隐蔽证人在后面特殊处理
+		sVideoWindow * vo = new sVideoWindow;
+		vo->label = new QLabel;
+		vo->output = new (QtAV::VideoOutput);
+		QVBoxLayout *vl =  new QVBoxLayout();
+		vo->label->setAlignment(Qt::AlignHCenter);
+		vo->label->setStyleSheet(labelstyple);
+		vo->label->setText(videolabel.at(i));
+		vl->addWidget(vo->label);
+		vl->addWidget(vo->output->widget());
+		vl->setStretch(0,0);
+		vl->setStretch(1,1);
+		ui->loVideoList->addLayout(vl, (i < 3)?0:1, i%3);
+		m_videoout.append(vo);
+	}
+	if(m_videolist.size() >= videolabel.size()){	//有隐蔽证人
+		sVideoWindow * vo = new sVideoWindow;
+		vo->label = new QLabel;
+		vo->output = new (QtAV::VideoOutput);
+		QVBoxLayout *vl =  new QVBoxLayout();
+		vo->label->setAlignment(Qt::AlignHCenter);
+		vo->label->setStyleSheet(labelstyple);
+		vo->label->setText(videolabel.at(videolabel.size() - 1));
+		vl->addWidget(vo->label);
+		vl->addWidget(vo->output->widget());
+		vl->setStretch(0,0);
+		vl->setStretch(1,1);
+		ui->loVideoList->addLayout(vl, 0, 3);
+		m_videoout.append(vo);
+	}
+	m_singlevideooutput = new (QtAV::VideoOutput);
+	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
+	m_sliderprocess2 = new QSlider(ui->page_2);
+	m_sliderprocess2->setOrientation(Qt::Horizontal);
+	ui->loSinVideo->addWidget(m_sliderprocess2);
+	connect(m_sliderprocess2, SIGNAL(sliderMoved(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
+}
+
 void MainWindow::seekBySlider(int value)
 {
-
 	if(m_playergroup && m_playergroup->IsPlaying()){
 		m_playergroup->Seek(qint64(value * m_unit));
 	}
-
 }
 
 void MainWindow::seekBySlider()
@@ -206,7 +232,17 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 		for(int row = 0; row < ui->loVideoList->rowCount(); row++){
 			for(int column = 0; column < ui->loVideoList->columnCount(); column++) {
 				if(ui->loVideoList->cellRect(row, column).contains(event->pos())){
-					index = row * ui->loVideoList->columnCount() + column;
+					//index = row * ui->loVideoList->columnCount() + column;
+					//因为隐蔽证人的问题，这里的index就变得有点麻烦了,
+					//因为隐蔽证人这个视频在videolist里是最后一个视频的，按现在的计算是得到4，正确的应该是6，
+					//这里只好特殊处理一下，应该有更好的方法。
+					if(ui->loVideoList->columnCount() >= 4){	//有隐蔽证人
+						if(row < 1) index = column;	//第一行的
+						if(row >= 1) index = row * 3 + column;	//第二行的
+						if(column == 3) index = m_videolist.size() - 1;	//隐蔽证人
+					} else {
+						index = row * ui->loVideoList->columnCount() + column;
+					}
 					PlayFullScreen(index);
 					break;
 				}
@@ -280,7 +316,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 
 //}
 
-void MainWindow::Play()
+bool MainWindow::PrepareFileList()
 {
 	QString strpath = QApplication::applicationDirPath();
 	QDir curdir(strpath);
@@ -309,31 +345,47 @@ void MainWindow::Play()
 		}
 	}
 	qDebug()<<"Audio list:"<<m_audiolist;
+	if(0 == m_audiolist.size()) {
+		return false;
+	}
 
 	//获取视频文件
-	QList<QRegExp> videoreglist;
-	videoreglist.append(QRegExp("^Court_1-1-.+\\.asf"));
-	videoreglist.append(QRegExp("^Court_1-2-.+\\.asf"));
-	videoreglist.append(QRegExp("^Court_1-3-.+\\.asf"));
-	videoreglist.append(QRegExp("^Court_1-4-.+\\.asf"));
-	videoreglist.append(QRegExp("^Court_1-5-.+\\.asf"));
-	videoreglist.append(QRegExp("^Court_1-20-.+\\.asf"));
+	//获取court number
+	QString courtnumber;
+	QRegExp rxcourt("^Court_(\\d+)-.*.asf");
+	foreach (QString filename, filelist) {
+		if(filename.contains(rxcourt)){
+			courtnumber = rxcourt.cap(1);
+		}
+	}
 
-	foreach (QRegExp rx, videoreglist) {
+	//从config文件中读取这个court对应的cam number
+	QSettings camconfig(strpath + "/CamConfig.ini", QSettings::IniFormat);
+	QStringList camlist =  camconfig.value("main/Court_" + courtnumber).toStringList();
+	//根据cam num找到对应的文件
+	foreach (QString c, camlist) {
 		int i;
 		for(i = 0; i < filelist.size(); i++) {
+			QRegExp rxvideo("^Court_" + courtnumber + "-" + c + "-" + ".+.asf");
 			QString filename = filelist.at(i);
-			if(filename.contains(rx)){
+			if(filename.contains(rxvideo)) {
 				m_videolist.append(strpath + "/" + filename);
 				break;
 			}
 		}
-		if(i >= filelist.size()){
-			m_videolist.append("");//if not found , add null string to it
+		if(i >= filelist.size()) {
+			m_videolist.append("");
 		}
 	}
-	qDebug()<<"Video List:"<<m_videolist;
+	qDebug()<<m_videolist;
+	if(0 == m_videolist.size()) {
+		return false;
+	}
+	return true;
+}
 
+void MainWindow::Play()
+{
 	if(m_playergroup) {
 		m_playergroup->Stop();
 		delete m_playergroup;
@@ -354,6 +406,7 @@ void MainWindow::Play()
 	m_fullscreenindex = -1;
 	m_playergroup->Play(m_index);
 	m_audiobtngroup->button(m_index)->setChecked(true);
+	SetVolume();
 }
 
 void MainWindow::on_sliProcess_sliderMoved(int position)
@@ -464,3 +517,20 @@ void MainWindow::Slot_MediaStateChanged(QMediaPlayer::State state)
 	SetStopState();
 }
 
+
+void MainWindow::SetVolume()
+{
+	if(m_playergroup){
+		m_playergroup->SetVolume(ui->sliVolume->value());
+	}
+}
+
+void MainWindow::on_sliVolume_sliderPressed()
+{
+	SetVolume();
+}
+
+void MainWindow::on_sliVolume_valueChanged(int value)
+{
+	SetVolume();
+}

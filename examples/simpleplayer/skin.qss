@@ -35,3 +35,6 @@ QPushButton#btnStop{ border-image: url(images/StopNormal.png); }
 QPushButton#btnStop:disabled{ border-image: url(images/StopDisabled.png); }
 QPushButton#btnStop:hover{ border-image: url(images/StopHover.png); }
 QPushButton#btnStop:pressed{ border-image: url(images/StopPressed.png); }
+
+QLabel#lbVolume {border-image: url(images/Volume.png); }
+QGridLayout#loVideoList QLabel{font: 15pt "微软雅黑"; color: rgb(255, 255, 255);  }
