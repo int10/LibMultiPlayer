@@ -83,7 +83,7 @@ void MainWindow::InitVideoInterface()
 {
 	QStringList videolabel;
 	QString labelstyple("QLabel{font: 15pt \"微软雅黑\"; color: rgb(255, 255, 255);  }");
-	videolabel<<"律师"<<"法官"<<"检察官"<<"嫌犯"<<"近镜证人"<<"证人"<<"隐蔽证人";
+	videolabel<<"律師  ADVOGADO"<<"法官  JUIZ"<<"檢察官  MINISTÉRIO PÚBLICO"<<"嫌犯  ARGUIDO"<<"證人  TESTEMUNHA"<<"證人  TESTEMUNHA"<<"證人  TESTEMUNHA";
 	for(int i = 0; i < videolabel.size() - 1; i++) {//隐蔽证人在后面特殊处理
 		sVideoWindow * vo = new sVideoWindow;
 		vo->label = new QLabel;

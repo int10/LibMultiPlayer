@@ -147,7 +147,7 @@
                 <bool>false</bool>
                </property>
                <property name="text">
-                <string>声道选择：</string>
+                <string>聲道選擇 :</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -169,7 +169,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>现场</string>
+                <string>現場</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>
@@ -276,7 +276,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>开始时间：</string>
+                <string>開始時間  :</string>
                </property>
               </widget>
               <widget class="QLabel" name="label_2">
@@ -295,7 +295,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>目前时间：</string>
+                <string>目前時間  :</string>
                </property>
               </widget>
               <widget class="QLabel" name="label_3">
