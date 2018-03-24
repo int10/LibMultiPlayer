@@ -147,7 +147,7 @@
                 <bool>false</bool>
                </property>
                <property name="text">
-                <string>聲道選擇 :</string>
+                <string>聲道選擇 ：</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -276,7 +276,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>開始時間  :</string>
+                <string>開始時間 ：</string>
                </property>
               </widget>
               <widget class="QLabel" name="label_2">
@@ -295,7 +295,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>目前時間  :</string>
+                <string>目前時間 ：</string>
                </property>
               </widget>
               <widget class="QLabel" name="label_3">
@@ -360,24 +360,116 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout">
                <item>
-                <widget class="QSlider" name="sliProcess">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                <widget class="QFrame" name="frame_3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QFrame" name="frame_2">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
                  <property name="frameShadow">
                   <enum>QFrame::Raised</enum>
                  </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0">
+                  <item>
+                   <widget class="QPushButton" name="btnFb">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSlider" name="sliProcess">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnFf">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>30</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QFrame" name="frame_2">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>50</height>
+                  </size>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>0</number>
+                 </property>
                  <widget class="QPushButton" name="btnOpen">
                   <property name="geometry">
                    <rect>
-                    <x>10</x>
+                    <x>90</x>
                     <y>20</y>
                     <width>30</width>
                     <height>30</height>
@@ -390,7 +482,7 @@
                  <widget class="QPushButton" name="btnPlay">
                   <property name="geometry">
                    <rect>
-                    <x>40</x>
+                    <x>10</x>
                     <y>0</y>
                     <width>50</width>
                     <height>50</height>
@@ -403,7 +495,7 @@
                  <widget class="QPushButton" name="btnStop">
                   <property name="geometry">
                    <rect>
-                    <x>90</x>
+                    <x>60</x>
                     <y>20</y>
                     <width>30</width>
                     <height>30</height>
@@ -416,7 +508,7 @@
                  <widget class="QPushButton" name="btnIdle">
                   <property name="geometry">
                    <rect>
-                    <x>120</x>
+                    <x>90</x>
                     <y>20</y>
                     <width>30</width>
                     <height>30</height>
@@ -445,7 +537,7 @@
                  <widget class="QPushButton" name="btnPause">
                   <property name="geometry">
                    <rect>
-                    <x>40</x>
+                    <x>10</x>
                     <y>0</y>
                     <width>50</width>
                     <height>50</height>
@@ -473,6 +565,32 @@
                    <rect>
                     <x>160</x>
                     <y>15</y>
+                    <width>30</width>
+                    <height>30</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                 <widget class="QPushButton" name="btnPre">
+                  <property name="geometry">
+                   <rect>
+                    <x>90</x>
+                    <y>20</y>
+                    <width>30</width>
+                    <height>30</height>
+                   </rect>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                 <widget class="QPushButton" name="btnNext">
+                  <property name="geometry">
+                   <rect>
+                    <x>120</x>
+                    <y>20</y>
                     <width>30</width>
                     <height>30</height>
                    </rect>

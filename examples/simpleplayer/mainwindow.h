@@ -48,9 +48,9 @@ private slots:
 	void Slot_MediaStateChanged(QMediaPlayer::State state);
 	void on_btnIdle_clicked();
 	void on_sliVolume_sliderPressed();
-
 	void on_sliVolume_valueChanged(int value);
-
+	void on_btnFb_clicked();
+	void on_btnFf_clicked();
 private:
 //	void Play(QString xmlfilename);
 	void Play();

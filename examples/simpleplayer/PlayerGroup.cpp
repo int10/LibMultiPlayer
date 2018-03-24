@@ -318,3 +318,13 @@ void PlayerGroup::SetVolume(int value)
 		}
 	}
 }
+
+void PlayerGroup::Fb()
+{
+	Seek(position() - 5000);
+}
+
+void PlayerGroup::Ff()
+{
+	Seek(position() + 5000);
+}

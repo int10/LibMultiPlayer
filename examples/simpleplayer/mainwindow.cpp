@@ -477,7 +477,12 @@ void MainWindow::SetStopState()
 	ui->btnPlay->setEnabled(false);
 	ui->btnPause->setEnabled(false);
 	ui->btnStop->setEnabled(false);
+	ui->btnFb->setEnabled(false);
+	ui->btnFf->setEnabled(false);
+	ui->btnPre->setEnabled(false);
+	ui->btnNext->setEnabled(false);
 	ui->sliProcess->setEnabled(false);
+
 	ui->stackedWidget->setCurrentIndex(0);
 	ExitFullScreen(m_fullscreenindex);
 }
@@ -511,6 +516,8 @@ void MainWindow::SetPlayState(QStringList audiolist)
 	ui->btnPlay->setVisible(false);
 	ui->btnPause->setEnabled(true);
 	ui->btnStop->setEnabled(true);
+	ui->btnFb->setEnabled(true);
+	ui->btnFf->setEnabled(true);
 	ui->sliProcess->setEnabled(true);
 }
 
@@ -534,7 +541,6 @@ void MainWindow::Slot_MediaStateChanged(QMediaPlayer::State state)
 	SetStopState();
 }
 
-
 void MainWindow::SetVolume()
 {
 	if(m_playergroup){
@@ -550,4 +556,18 @@ void MainWindow::on_sliVolume_sliderPressed()
 void MainWindow::on_sliVolume_valueChanged(int value)
 {
 	SetVolume();
+}
+
+void MainWindow::on_btnFb_clicked()
+{
+	if(m_playergroup){
+		m_playergroup->Fb();
+	}
+}
+
+void MainWindow::on_btnFf_clicked()
+{
+	if(m_playergroup){
+		m_playergroup->Ff();
+	}
 }

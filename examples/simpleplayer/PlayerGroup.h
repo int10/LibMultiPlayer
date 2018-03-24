@@ -29,6 +29,8 @@ public:
 	bool AddVideoOutput(int index, QtAV::VideoOutput * output);
 	void RemoveVideoOutput(int index, QtAV::VideoOutput * output);
 	void SetVolume(int value);
+	void Fb();
+	void Ff();
 signals:
 	void Signal_UpdateSliderUnit();
 	void Signal_PositionChanged(qint64 value);
