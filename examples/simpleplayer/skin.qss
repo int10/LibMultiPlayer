@@ -25,7 +25,6 @@ QPushButton#btnPlay:disabled{ border-image: url(images/PlayDisabled.png); }
 QPushButton#btnPlay:hover{ border-image: url(images/PlayHover.png); }
 QPushButton#btnPlay:pressed{ border-image: url(images/PlayPressed.png); }
 
-
 QPushButton#btnPause{ border-image: url(images/PauseNormal.png); }
 QPushButton#btnPause:disabled{ border-image: url(images/PauseDisabled.png); }
 QPushButton#btnPause:hover{ border-image: url(images/PauseHover.png); }
@@ -35,6 +34,26 @@ QPushButton#btnStop{ border-image: url(images/StopNormal.png); }
 QPushButton#btnStop:disabled{ border-image: url(images/StopDisabled.png); }
 QPushButton#btnStop:hover{ border-image: url(images/StopHover.png); }
 QPushButton#btnStop:pressed{ border-image: url(images/StopPressed.png); }
+
+QPushButton#btnFb{ border-image: url(images/FbNormal.png); }
+QPushButton#btnFb:disabled{ border-image: url(images/FbDisabled.png); }
+QPushButton#btnFb:hover{ border-image: url(images/FbHover.png); }
+QPushButton#btnFb:pressed{ border-image: url(images/FbPressed.png); }
+
+QPushButton#btnFf{ border-image: url(images/FfNormal.png); }
+QPushButton#btnFf:disabled{ border-image: url(images/FfDisabled.png); }
+QPushButton#btnFf:hover{ border-image: url(images/FfHover.png); }
+QPushButton#btnFf:pressed{ border-image: url(images/FfPressed.png); }
+
+QPushButton#btnPre{ border-image: url(images/PreNormal.png); }
+QPushButton#btnPre:disabled{ border-image: url(images/PreDisabled.png); }
+QPushButton#btnPre:hover{ border-image: url(images/PreHover.png); }
+QPushButton#btnPre:pressed{ border-image: url(images/PrePressed.png); }
+
+QPushButton#btnNext{ border-image: url(images/NextNormal.png); }
+QPushButton#btnNext:disabled{ border-image: url(images/NextDisabled.png); }
+QPushButton#btnNext:hover{ border-image: url(images/NextHover.png); }
+QPushButton#btnNext:pressed{ border-image: url(images/NextPressed.png); }
 
 QLabel#lbVolume {border-image: url(images/Volume.png); }
 QGridLayout#loVideoList QLabel{font: 15pt "微软雅黑"; color: rgb(255, 255, 255);  }
