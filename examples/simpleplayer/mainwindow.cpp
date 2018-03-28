@@ -4,7 +4,7 @@
 #include <QSlider>
 #include <QSettings>
 #include <QMessageBox>
-#define VERSION "1.3"
+#define VERSION "1.5"
 
 using namespace QtAV;
 MainWindow::MainWindow(QWidget *parent) :
@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_xmlfilepath = "";
 	m_fullscreenindex = -1;
 	m_singlevideooutput = NULL;
+	m_controlpanel = NULL;
+	m_showcontrolpanel = false;
 	m_videoout.clear();
 	this->setWindowTitle(QString("Multi player ") + VERSION);
 
@@ -39,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		btn->setCheckable(true);
 	}
 
-	SetStopState();
+	//SetStopState();
 	ui->btnIdle->setVisible(false);
 	ui->btnOpen->setVisible(false);
 	ui->sliVolume->setMaximum(100);
@@ -75,6 +77,10 @@ MainWindow::~MainWindow()
 	if(m_singlevideooutput) {
 		delete m_singlevideooutput;
 		m_singlevideooutput = NULL;
+	}
+	if(m_controlpanel) {
+		delete m_controlpanel;
+		m_controlpanel = NULL;
 	}
 	delete ui;
 }
@@ -114,12 +120,30 @@ void MainWindow::InitVideoInterface()
 		ui->loVideoList->addLayout(vl, 0, 3);
 		m_videoout.append(vo);
 	}
+
 	m_singlevideooutput = new (QtAV::VideoOutput);
 	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
-	m_sliderprocess2 = new QSlider(ui->page_2);
-	m_sliderprocess2->setOrientation(Qt::Horizontal);
-	ui->loSinVideo->addWidget(m_sliderprocess2);
-	connect(m_sliderprocess2, SIGNAL(sliderMoved(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
+	//m_sliderprocess2 = new QSlider(ui->page_2);
+	//m_sliderprocess2->setOrientation(Qt::Horizontal);
+	//ui->loSinVideo->addWidget(m_sliderprocess2);
+	//m_sliderprocess2->setVisible(true);
+	//connect(m_sliderprocess2, SIGNAL(sliderMoved(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
+	m_controlpanel = new FormControlPanel(ui->page_2);
+	//ui->loSinVideo->addWidget(m_controlpanel);
+	connect(m_controlpanel, SIGNAL(SignalFb()), this, SLOT(on_btnFb_clicked()));
+	connect(m_controlpanel, SIGNAL(SignalFf()), this, SLOT(on_btnFf_clicked()));
+	connect(m_controlpanel, SIGNAL(SignalStop()), this, SLOT(on_btnStop_clicked()));
+	connect(m_controlpanel, SIGNAL(SignalPause()), this, SLOT(on_btnPause_clicked()));
+	connect(m_controlpanel, SIGNAL(SignalPlay()), this, SLOT(on_btnPlay_clicked()));
+	connect(m_controlpanel, SIGNAL(SignalProcessMove(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
+	connect(m_controlpanel, SIGNAL(SignalUpdateVolume(int)), this, SLOT(Slot_UpdateVolume(int)));
+
+	m_controlpanel->setMouseTracking(true);
+	m_singlevideooutput->widget()->setMouseTracking(true);
+	ui->page_2->setMouseTracking(true);
+	ui->stackedWidget->setMouseTracking(true);
+	ui->centralwidget->setMouseTracking(true);
+	setMouseTracking(true);
 }
 
 void MainWindow::seekBySlider(int value)
@@ -149,6 +173,7 @@ void MainWindow::on_btnPlay_clicked()
 	m_playergroup->PlayPause();
 	ui->btnPlay->setVisible(false);
 	ui->btnPause->setVisible(true);
+	m_controlpanel->SetPlayPause(true);
 }
 
 void MainWindow::on_btnPause_clicked()
@@ -157,6 +182,7 @@ void MainWindow::on_btnPause_clicked()
 	m_playergroup->PlayPause();
 	ui->btnPlay->setVisible(true);
 	ui->btnPause->setVisible(false);
+	m_controlpanel->SetPlayPause(false);
 }
 
 void MainWindow::on_btnStop_clicked()
@@ -170,8 +196,8 @@ void MainWindow::updateSlider(qint64 value)
 	ui->sliProcess->setRange(0, int(m_playergroup->duration()/m_unit));
 	ui->sliProcess->setValue(int(value/m_unit));
 
-	m_sliderprocess2->setRange(0, int(m_playergroup->duration()/m_unit));
-	m_sliderprocess2->setValue(int(value/m_unit));
+	//m_sliderprocess2->setRange(0, int(m_playergroup->duration()/m_unit));
+	//m_sliderprocess2->setValue(int(value/m_unit));
 
 	int total_sec = m_playergroup->duration()/1000;
 	int min = total_sec/60;
@@ -183,6 +209,7 @@ void MainWindow::updateSlider(qint64 value)
 	QString str;
 	str.sprintf("%0d:%02d/%0d:%02d", pmin, psec, min, sec);
 	ui->lbProcess->setText(str);
+	m_controlpanel->UpdateSlider(int(m_playergroup->duration()/m_unit), int(value/m_unit), str);
 }
 
 void MainWindow::updateSlider()
@@ -253,6 +280,45 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 	}
 }
 
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+//	int startx = 0;
+//	int starty = m_singlevideooutput->widget()->height() - m_singlevideooutput->widget()->y() - m_controlpanel->height();
+//	int w = m_singlevideooutput->widget()->width();
+//	int h = m_controlpanel->height();
+//	if(-1 != m_fullscreenindex) {
+//		if(m_showcontrolpanel){
+//			m_controlpanel->hide();
+//			m_showcontrolpanel = false;
+//		} else {
+//			m_controlpanel->setGeometry(startx, starty, w, h);
+//			m_controlpanel->show();
+//			m_showcontrolpanel = true;
+//		}
+//	}
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+	int startx = 0;
+	int starty = m_singlevideooutput->widget()->height() - m_singlevideooutput->widget()->y() - m_controlpanel->height();
+	int w = m_singlevideooutput->widget()->width();
+	int h = m_controlpanel->height();
+	if(-1 != m_fullscreenindex) {
+		if(event->pos().y() > starty) {
+			if(m_showcontrolpanel == false){
+				m_controlpanel->setGeometry(startx, starty, w, h);
+				m_controlpanel->show();
+				m_showcontrolpanel = true;
+			}
+		} else {
+			if(m_showcontrolpanel == true){
+				m_controlpanel->hide();
+				m_showcontrolpanel = false;
+			}
+		}
+	}
+}
 
 //void MainWindow::Play(QString xmlfilename)
 //{
@@ -447,6 +513,8 @@ void MainWindow::PlayFullScreen(int index)
 		ui->stackedWidget->setCurrentIndex(1);
 		this->showFullScreen();
 		m_fullscreenindex = index;
+		m_controlpanel->hide();
+		m_showcontrolpanel = false;
 	}
 }
 
@@ -482,6 +550,7 @@ void MainWindow::SetStopState()
 	ui->btnPre->setEnabled(false);
 	ui->btnNext->setEnabled(false);
 	ui->sliProcess->setEnabled(false);
+	m_controlpanel->SetStopState();
 
 	ui->stackedWidget->setCurrentIndex(0);
 	ExitFullScreen(m_fullscreenindex);
@@ -519,6 +588,7 @@ void MainWindow::SetPlayState(QStringList audiolist)
 	ui->btnFb->setEnabled(true);
 	ui->btnFf->setEnabled(true);
 	ui->sliProcess->setEnabled(true);
+	m_controlpanel->SetPlayState();
 }
 
 void MainWindow::Slot_StateChanged(QtAV::AVPlayer::State state)
@@ -545,6 +615,7 @@ void MainWindow::SetVolume()
 {
 	if(m_playergroup){
 		m_playergroup->SetVolume(ui->sliVolume->value());
+		m_controlpanel->SyncVolume(ui->sliVolume->value());
 	}
 }
 
@@ -570,4 +641,10 @@ void MainWindow::on_btnFf_clicked()
 	if(m_playergroup){
 		m_playergroup->Ff();
 	}
+}
+
+void MainWindow::Slot_UpdateVolume(int volume)
+{
+	ui->sliVolume->setValue(volume);
+	SetVolume();
 }

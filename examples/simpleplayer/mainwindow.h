@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -13,6 +13,7 @@
 #include "ConfigXml.h"
 #include <QButtonGroup>
 #include <QSlider>
+#include "FormControlPanel.h"
 
 namespace Ui {
 class MainWindow;
@@ -46,6 +47,7 @@ private slots:
 	void Slot_ClickBtnGroup(int id);
 	void Slot_StateChanged(QtAV::AVPlayer::State state);
 	void Slot_MediaStateChanged(QMediaPlayer::State state);
+	void Slot_UpdateVolume(int volume);
 	void on_btnIdle_clicked();
 	void on_sliVolume_sliderPressed();
 	void on_sliVolume_valueChanged(int value);
@@ -66,6 +68,8 @@ protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
 	void mouseDoubleClickEvent(QMouseEvent *);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
 private:
 	Ui::MainWindow *ui;
 	QList<sVideoWindow *> m_videoout;
@@ -77,10 +81,11 @@ private:
 	qint64 m_position;
 	QButtonGroup *m_audiobtngroup;
 	QString m_xmlfilepath;
-	QSlider * m_sliderprocess2;	//single play slider
+	//QSlider * m_sliderprocess2;	//single play slider
 	QStringList m_audiolist;
 	QStringList m_videolist;
-
+	FormControlPanel *m_controlpanel;
+	bool m_showcontrolpanel;
 };
 
 #endif // MAINWINDOW_H
