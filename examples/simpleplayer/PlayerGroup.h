@@ -3,7 +3,7 @@
 #include <QStringList>
 #include <QList>
 #include <QTimer>
-#include <QMediaPlayer>
+//#include <QMediaPlayer>
 #include "QtAV.h"
 
 //#define USE_QMEDIAPLAYER
@@ -36,13 +36,13 @@ signals:
 	void Signal_PositionChanged(qint64 value);
 	void Signal_Started();
 	void Signal_StateChanged(QtAV::AVPlayer::State state);
-	void Signal_mediaStateChanged(QMediaPlayer::State state);
+//	void Signal_mediaStateChanged(QMediaPlayer::State state);
 private slots:
 	void updateSliderUnit();
 	void updateSlider(qint64 value);
 	void updateSlider();
 	void stateChanged(QtAV::AVPlayer::State state);
-	void mediaStateChanged(QMediaPlayer::State state);
+	//void mediaStateChanged(QMediaPlayer::State state);
 
 private:
 	QStringList m_audiolist;

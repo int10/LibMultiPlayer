@@ -46,7 +46,7 @@ private slots:
 	void updateSliderUnit();
 	void Slot_ClickBtnGroup(int id);
 	void Slot_StateChanged(QtAV::AVPlayer::State state);
-	void Slot_MediaStateChanged(QMediaPlayer::State state);
+//	void Slot_MediaStateChanged(QMediaPlayer::State state);
 	void Slot_UpdateVolume(int volume);
 	void on_btnIdle_clicked();
 	void on_sliVolume_sliderPressed();

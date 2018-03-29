@@ -105,7 +105,6 @@ void PlayerGroup::PlayPause()
 
 #else
 	//好忧伤，原来理解错了，AVPlayer的isPlaying在pause状态下也是返回true的。。导致这个类的IsPlaying的返回值跟AVPlayer的返回值对不上，这里要留意一下。
-	qDebug()<<"play pause:"<< m_audioplayer->isPaused()<<m_audioplayer->isPlaying();
 	if (!m_audioplayer->isPlaying()) {
 			foreach(QtAV::AVPlayer *player, m_playerlist) {
 			if(player){
@@ -269,8 +268,8 @@ void PlayerGroup::stateChanged(QtAV::AVPlayer::State state)
 			m_audiopos = 0;
 			if(m_isplaying == false) {
 				foreach(QtAV::AVPlayer *player, m_playerlist) {
-					if(player) {
-						player->play();
+					if(player && player->isPaused()) {
+						player->pause(!player->isPaused());
 					}
 				}
 				m_isplaying = true;
@@ -280,10 +279,10 @@ void PlayerGroup::stateChanged(QtAV::AVPlayer::State state)
 	emit Signal_StateChanged(state);
 }
 
-void PlayerGroup::mediaStateChanged(QMediaPlayer::State state)
-{
-	emit Signal_mediaStateChanged(state);
-}
+//void PlayerGroup::mediaStateChanged(QMediaPlayer::State state)
+//{
+//	emit Signal_mediaStateChanged(state);
+//}
 
 QList<QtAV::VideoOutput *> PlayerGroup::GetVideoOutput()
 {

@@ -36,6 +36,7 @@ void FormControlPanel::SetPlayState()
 	ui->btnPlay->setEnabled(true);
 	ui->btnPlay->setVisible(false);
 	ui->btnPause->setEnabled(true);
+	ui->btnPause->setVisible(true);
 	ui->btnStop->setEnabled(true);
 	ui->btnFb->setEnabled(true);
 	ui->btnFf->setEnabled(true);

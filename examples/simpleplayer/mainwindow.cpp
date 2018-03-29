@@ -500,6 +500,7 @@ void MainWindow::on_sliProcess_sliderMoved(int position)
 void MainWindow::Slot_ClickBtnGroup(int id)
 {
 	m_playergroup->SwitchAudio(id);
+	SetPlayState(m_audiolist);
 	foreach (QAbstractButton * btn, m_audiobtngroup->buttons()) {
 		btn->setChecked(false);
 	}
@@ -584,6 +585,7 @@ void MainWindow::SetPlayState(QStringList audiolist)
 	ui->btnPlay->setEnabled(true);
 	ui->btnPlay->setVisible(false);
 	ui->btnPause->setEnabled(true);
+	ui->btnPause->setVisible(true);
 	ui->btnStop->setEnabled(true);
 	ui->btnFb->setEnabled(true);
 	ui->btnFf->setEnabled(true);
@@ -601,15 +603,15 @@ void MainWindow::Slot_StateChanged(QtAV::AVPlayer::State state)
 	SetStopState();
 }
 
-void MainWindow::Slot_MediaStateChanged(QMediaPlayer::State state)
-{
-	if(QMediaPlayer::StoppedState == state) {
-		m_playergroup->Stop();
-		delete m_playergroup;
-		m_playergroup = NULL;
-	}
-	SetStopState();
-}
+//void MainWindow::Slot_MediaStateChanged(QMediaPlayer::State state)
+//{
+//	if(QMediaPlayer::StoppedState == state) {
+//		m_playergroup->Stop();
+//		delete m_playergroup;
+//		m_playergroup = NULL;
+//	}
+//	SetStopState();
+//}
 
 void MainWindow::SetVolume()
 {
