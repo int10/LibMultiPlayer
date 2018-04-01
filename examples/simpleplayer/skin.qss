@@ -56,10 +56,20 @@ QPushButton#btnNext:hover{ border-image: url(images/NextHover.png); }
 QPushButton#btnNext:pressed{ border-image: url(images/NextPressed.png); }
 
 QLabel#lbVolume {border-image: url(images/Volume.png); }
+QLabel#lbVolume:disabled {border-image: url(images/VolumeDisabled.png); }
 QGridLayout#loVideoList QLabel{font: 15pt "微软雅黑"; color: rgb(255, 255, 255);  }
 
 QMessageBox {background-color: rgb(64, 64, 64); }
 QMessageBox QLabel {font: 15pt "微软雅黑"; color: rgb(255, 255, 255);}
-  
-  
-  
+
+QSlider::add-page:Horizontal{background-color: rgb(116,116,116);height:4px;}  
+QSlider::sub-page:Horizontal{background-color: rgb(0, 160, 234); height:4px;}
+QSlider::sub-page:Horizontal:disabled{background-color: rgb(116,116,116); height:4px;}
+QSlider::groove:Horizontal{background:transparent;height:6px;}
+QSlider::handle:Horizontal{height: 20px;width:10px;border-image: url(images/SliderNormal.png);margin: -8 0px;}
+QSlider::handle:Horizontal:disabled{height: 20px;width:10px;border-image: url(images/SliderDisabled.png);margin: -8 0px;}
+QSlider::handle:Horizontal:hover{height: 20px;width:10px;border-image: url(images/SliderHover.png);margin: -8 0px;}
+QSlider::handle:Horizontal:Pressed{height: 20px;width:10px;border-image: url(images/SliderPressed.png);margin: -8 0px;}
+
+
+

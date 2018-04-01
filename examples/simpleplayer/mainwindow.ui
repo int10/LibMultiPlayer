@@ -63,7 +63,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>450</width>
+                <width>430</width>
                 <height>100</height>
                </size>
               </property>
@@ -253,7 +253,7 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>400</width>
+                <width>350</width>
                 <height>100</height>
                </size>
               </property>
@@ -298,7 +298,7 @@
                 <string>目前時間 ：</string>
                </property>
               </widget>
-              <widget class="QLabel" name="label_3">
+              <widget class="QLabel" name="lbRecordTime">
                <property name="geometry">
                 <rect>
                  <x>130</x>
@@ -317,7 +317,7 @@
                 <string>2018-01-30 15:20:10</string>
                </property>
               </widget>
-              <widget class="QLabel" name="label_4">
+              <widget class="QLabel" name="lbCurTime">
                <property name="geometry">
                 <rect>
                  <x>130</x>

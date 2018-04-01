@@ -4,7 +4,7 @@
 #include <QSlider>
 #include <QSettings>
 #include <QMessageBox>
-#define VERSION "1.5"
+#define VERSION "1.6"
 
 using namespace QtAV;
 MainWindow::MainWindow(QWidget *parent) :
@@ -51,7 +51,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	if(PrepareFileList()){
 		InitVideoInterface();
-		Play();
+		SetStopState();
+		//Play();
 	}
 }
 
@@ -90,6 +91,7 @@ void MainWindow::InitVideoInterface()
 	QStringList videolabel;
 	QString labelstyple("QLabel{font: 15pt \"微软雅黑\"; color: rgb(255, 255, 255);  }");
 	videolabel<<"律師  ADVOGADO"<<"法官  JUIZ"<<"檢察官  MINISTÉRIO PÚBLICO"<<"嫌犯  ARGUIDO"<<"證人  TESTEMUNHA"<<"證人  TESTEMUNHA"<<"證人  TESTEMUNHA";
+	m_videoposmap.clear();
 	for(int i = 0; i < videolabel.size() - 1; i++) {//隐蔽证人在后面特殊处理
 		sVideoWindow * vo = new sVideoWindow;
 		vo->label = new QLabel;
@@ -102,7 +104,10 @@ void MainWindow::InitVideoInterface()
 		vl->addWidget(vo->output->widget());
 		vl->setStretch(0,0);
 		vl->setStretch(1,1);
-		ui->loVideoList->addLayout(vl, (i < 3)?0:1, i%3);
+		int row = (i < 3)?0:1;
+		int column = i%3;
+		ui->loVideoList->addLayout(vl, row, column);
+		m_videoposmap[row * 10 + column] = i;
 		m_videoout.append(vo);
 	}
 	if(m_videolist.size() >= videolabel.size()){	//有隐蔽证人
@@ -117,19 +122,16 @@ void MainWindow::InitVideoInterface()
 		vl->addWidget(vo->output->widget());
 		vl->setStretch(0,0);
 		vl->setStretch(1,1);
-		ui->loVideoList->addLayout(vl, 0, 3);
+		int row = 0;
+		int column = 3;
+		ui->loVideoList->addLayout(vl, row, column);
+		m_videoposmap[row * 10 + column] = videolabel.size() - 1;
 		m_videoout.append(vo);
 	}
 
 	m_singlevideooutput = new (QtAV::VideoOutput);
 	ui->loSinVideo->addWidget(m_singlevideooutput->widget());
-	//m_sliderprocess2 = new QSlider(ui->page_2);
-	//m_sliderprocess2->setOrientation(Qt::Horizontal);
-	//ui->loSinVideo->addWidget(m_sliderprocess2);
-	//m_sliderprocess2->setVisible(true);
-	//connect(m_sliderprocess2, SIGNAL(sliderMoved(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
 	m_controlpanel = new FormControlPanel(ui->page_2);
-	//ui->loSinVideo->addWidget(m_controlpanel);
 	connect(m_controlpanel, SIGNAL(SignalFb()), this, SLOT(on_btnFb_clicked()));
 	connect(m_controlpanel, SIGNAL(SignalFf()), this, SLOT(on_btnFf_clicked()));
 	connect(m_controlpanel, SIGNAL(SignalStop()), this, SLOT(on_btnStop_clicked()));
@@ -138,6 +140,25 @@ void MainWindow::InitVideoInterface()
 	connect(m_controlpanel, SIGNAL(SignalProcessMove(int)), this, SLOT(on_sliProcess_sliderMoved(int)));
 	connect(m_controlpanel, SIGNAL(SignalUpdateVolume(int)), this, SLOT(Slot_UpdateVolume(int)));
 
+	//从第一个视频文件名里拿录视频的日期，时间。
+	QRegExp rxdt("^Court_(\\d+)-(\\d+)-(\\d+).asf");
+//	Court_1-1-20171017170848966
+	QString strdt;
+	foreach(QString dt, m_videolist) {
+		QString filename = dt.mid(dt.lastIndexOf("/") + 1);
+
+		qDebug()<<filename;
+		if(filename.contains(rxdt)){
+			strdt = rxdt.cap(3);
+			break;
+		}
+	}
+	strdt = strdt.left(14);
+	m_recordtime = QDateTime::fromString(strdt, "yyyyMMddhhmmss");
+	ui->lbRecordTime->setText(m_recordtime.toString("yyyy-MM-dd hh:mm:ss"));
+	ui->lbCurTime->setText(m_recordtime.toString("hh:mm:ss"));
+
+	//设置mouse trace，激活全屏时鼠标移动事件
 	m_controlpanel->setMouseTracking(true);
 	m_singlevideooutput->widget()->setMouseTracking(true);
 	ui->page_2->setMouseTracking(true);
@@ -169,6 +190,10 @@ void MainWindow::on_btnOpen_clicked()
 
 void MainWindow::on_btnPlay_clicked()
 {
+	if(!m_playergroup) {	//如果当前是stop状态，play。
+		Play();
+		return;
+	}
 	if(m_playergroup->IsPlaying()) return;
 	m_playergroup->PlayPause();
 	ui->btnPlay->setVisible(false);
@@ -188,6 +213,8 @@ void MainWindow::on_btnPause_clicked()
 void MainWindow::on_btnStop_clicked()
 {
 	m_playergroup->Stop();
+	delete m_playergroup;
+	m_playergroup = NULL;
 	SetStopState();
 }
 
@@ -209,6 +236,8 @@ void MainWindow::updateSlider(qint64 value)
 	QString str;
 	str.sprintf("%0d:%02d/%0d:%02d", pmin, psec, min, sec);
 	ui->lbProcess->setText(str);
+	QDateTime playtime = m_recordtime.addSecs(ptotal_sec);
+	ui->lbCurTime->setText(playtime.toString("hh:mm:ss"));
 	m_controlpanel->UpdateSlider(int(m_playergroup->duration()/m_unit), int(value/m_unit), str);
 }
 
@@ -253,24 +282,17 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	if(event->button() != Qt::LeftButton) return;
 	if(NULL == m_playergroup) return;
+	if(!m_playergroup->IsPlaying() && -1 == m_fullscreenindex) return;	//pause下不全屏
 
 	if(-1 == m_fullscreenindex){
 		int index = 0;
 		for(int row = 0; row < ui->loVideoList->rowCount(); row++){
 			for(int column = 0; column < ui->loVideoList->columnCount(); column++) {
 				if(ui->loVideoList->cellRect(row, column).contains(event->pos())){
-					//index = row * ui->loVideoList->columnCount() + column;
-					//因为隐蔽证人的问题，这里的index就变得有点麻烦了,
-					//因为隐蔽证人这个视频在videolist里是最后一个视频的，按现在的计算是得到4，正确的应该是6，
-					//这里只好特殊处理一下，应该有更好的方法。
-					if(ui->loVideoList->columnCount() >= 4){	//有隐蔽证人
-						if(row < 1) index = column;	//第一行的
-						if(row >= 1) index = row * 3 + column;	//第二行的
-						if(column == 3) index = m_videolist.size() - 1;	//隐蔽证人
-					} else {
-						index = row * ui->loVideoList->columnCount() + column;
+					index = m_videoposmap.value(row * 10 + column, -1);	//从videomap中获取双击的窗口对应视频的index;
+					if(-1 != index) {
+						PlayFullScreen(index);
 					}
-					PlayFullScreen(index);
 					break;
 				}
 			}
@@ -538,20 +560,24 @@ void MainWindow::on_btnIdle_clicked()
 
 void MainWindow::SetStopState()
 {
-	for(int i = 0; i < m_audiobtngroup->buttons().size(); i++) {
-		m_audiobtngroup->buttons().at(i)->setEnabled(false);
-		//m_audiobtngroup->buttons().at(i)->setText(QString::number(i));
+	foreach (QAbstractButton * btn, m_audiobtngroup->buttons()) {
+		btn->setChecked(false);
+		btn->setCheckable(false);
+		btn->setEnabled(false);
 	}
-
-	ui->btnPlay->setEnabled(false);
+	ui->btnPlay->setEnabled(true);
+	ui->btnPlay->setVisible(true);
 	ui->btnPause->setEnabled(false);
+	ui->btnPause->setVisible(false);
 	ui->btnStop->setEnabled(false);
 	ui->btnFb->setEnabled(false);
 	ui->btnFf->setEnabled(false);
 	ui->btnPre->setEnabled(false);
 	ui->btnNext->setEnabled(false);
 	ui->sliProcess->setEnabled(false);
+	ui->sliVolume->setEnabled(false);
 	m_controlpanel->SetStopState();
+
 
 	ui->stackedWidget->setCurrentIndex(0);
 	ExitFullScreen(m_fullscreenindex);
@@ -576,6 +602,7 @@ void MainWindow::SetStopState()
 void MainWindow::SetPlayState(QStringList audiolist)
 {
 	for(int i = 0; i < MAX_AUDIO_FILE; i++) {
+		m_audiobtngroup->buttons().at(i)->setCheckable(true);
 		if(m_audiolist.at(i) == ""){
 			m_audiobtngroup->buttons().at(i)->setEnabled(false);
 		} else {
@@ -590,6 +617,7 @@ void MainWindow::SetPlayState(QStringList audiolist)
 	ui->btnFb->setEnabled(true);
 	ui->btnFf->setEnabled(true);
 	ui->sliProcess->setEnabled(true);
+	ui->sliVolume->setEnabled(true);
 	m_controlpanel->SetPlayState();
 }
 

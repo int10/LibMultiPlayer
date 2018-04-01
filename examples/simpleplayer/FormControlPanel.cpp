@@ -21,14 +21,17 @@ FormControlPanel::~FormControlPanel()
 
 void FormControlPanel::SetStopState()
 {
-	ui->btnPlay->setEnabled(false);
+	ui->btnPlay->setEnabled(true);
+	ui->btnPlay->setVisible(true);
 	ui->btnPause->setEnabled(false);
+	ui->btnPause->setVisible(false);
 	ui->btnStop->setEnabled(false);
 	ui->btnFb->setEnabled(false);
 	ui->btnFf->setEnabled(false);
 	ui->btnPre->setEnabled(false);
 	ui->btnNext->setEnabled(false);
 	ui->sliProcess->setEnabled(false);
+	ui->sliVolume->setEnabled(false);
 }
 
 void FormControlPanel::SetPlayState()
@@ -41,6 +44,7 @@ void FormControlPanel::SetPlayState()
 	ui->btnFb->setEnabled(true);
 	ui->btnFf->setEnabled(true);
 	ui->sliProcess->setEnabled(true);
+	ui->sliVolume->setEnabled(true);
 }
 
 void FormControlPanel::SetPlayPause(bool play)

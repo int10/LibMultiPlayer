@@ -14,6 +14,8 @@
 #include <QButtonGroup>
 #include <QSlider>
 #include "FormControlPanel.h"
+#include <QMap>
+#include <QTime>
 
 namespace Ui {
 class MainWindow;
@@ -86,6 +88,8 @@ private:
 	QStringList m_videolist;
 	FormControlPanel *m_controlpanel;
 	bool m_showcontrolpanel;
+	QMap<int, int> m_videoposmap;
+	QDateTime m_recordtime;
 };
 
 #endif // MAINWINDOW_H
