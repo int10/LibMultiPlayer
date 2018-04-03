@@ -66,6 +66,7 @@ private:
 	bool PrepareFileList();
 	void InitVideoInterface();
 	void SetVolume();
+	bool SwitchAudio();
 protected:
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
@@ -78,7 +79,7 @@ private:
 	QtAV::VideoOutput *m_singlevideooutput;
 	PlayerGroup *m_playergroup;
 	int m_unit;
-	int m_index;
+	int m_dstindex, m_curindex;	//音频index，dst为要切换到的音频，cur为当前播放的音频。
 	int m_fullscreenindex;
 	qint64 m_position;
 	QButtonGroup *m_audiobtngroup;

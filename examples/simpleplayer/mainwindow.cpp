@@ -4,7 +4,7 @@
 #include <QSlider>
 #include <QSettings>
 #include <QMessageBox>
-#define VERSION "1.7"
+#define VERSION "1.8"
 
 using namespace QtAV;
 MainWindow::MainWindow(QWidget *parent) :
@@ -15,7 +15,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	m_unit = 1000;
 	m_playergroup = NULL;
-	m_index = 0;
+	m_dstindex = 0;
+	m_curindex = 0;
 	m_xmlfilepath = "";
 	m_fullscreenindex = -1;
 	m_singlevideooutput = NULL;
@@ -192,10 +193,14 @@ void MainWindow::on_btnPlay_clicked()
 		return;
 	}
 	if(m_playergroup->IsPlaying()) return;
-	m_playergroup->PlayPause();
-	ui->btnPlay->setVisible(false);
-	ui->btnPause->setVisible(true);
-	m_controlpanel->SetPlayPause(true);
+	if(m_dstindex == m_curindex) {
+		m_playergroup->PlayPause();
+		ui->btnPlay->setVisible(false);
+		ui->btnPause->setVisible(true);
+		m_controlpanel->SetPlayPause(true);
+	} else {
+		SwitchAudio();
+	}
 }
 
 void MainWindow::on_btnPause_clicked()
@@ -506,11 +511,15 @@ void MainWindow::Play()
 	connect(m_playergroup, SIGNAL(Signal_PositionChanged(qint64)), SLOT(updateSlider(qint64)));
 	connect(m_playergroup, SIGNAL(Signal_Started()), SLOT(updateSlider()));
 	connect(m_playergroup, SIGNAL(Signal_UpdateSliderUnit()), SLOT(updateSliderUnit()));
-	connect(m_playergroup, SIGNAL(Signal_mediaStateChanged(QMediaPlayer::State)), SLOT(Slot_MediaStateChanged(QMediaPlayer::State)));
-	m_index = 0;
+	//connect(m_playergroup, SIGNAL(Signal_mediaStateChanged(QMediaPlayer::State)), SLOT(Slot_MediaStateChanged(QMediaPlayer::State)));
+	//connect(m_playergroup, SIGNAL(Signal_StateChanged(QtAV::AVPlayer::State)), SLOT(Slot_StateChanged(QtAV::AVPlayer::State)));
+	m_dstindex = 0;
+	m_curindex = 0;
 	m_fullscreenindex = -1;
-	m_playergroup->Play(m_index);
-	m_audiobtngroup->button(m_index)->setChecked(true);
+	m_playergroup->Play(m_curindex);
+	m_audiobtngroup->button(m_curindex)->setChecked(true);
+	//估计是btn group的bug了。。disable后，再setChecked，要set两次才正常。
+	m_audiobtngroup->button(m_curindex)->setChecked(true);
 	SetVolume();
 }
 
@@ -521,13 +530,24 @@ void MainWindow::on_sliProcess_sliderMoved(int position)
 
 void MainWindow::Slot_ClickBtnGroup(int id)
 {
-	m_playergroup->SwitchAudio(id);
-	SetPlayState(m_audiolist);
+	m_dstindex = id;
 	foreach (QAbstractButton * btn, m_audiobtngroup->buttons()) {
 		btn->setChecked(false);
 	}
 	m_audiobtngroup->button(id)->setChecked(true);
-	m_index = id;
+	QSettings setting(QApplication::applicationDirPath() + "/Config.ini", QSettings::IniFormat);
+	int autoplay = setting.value("main/AutoPlaySwitchAudio", "0").toInt();
+	if(1 == autoplay || m_playergroup->IsPlaying()){
+		SwitchAudio();
+	}
+}
+
+bool MainWindow::SwitchAudio()
+{
+	if(m_dstindex == m_curindex)	return false;	//不用切换
+	m_curindex = m_dstindex;
+	m_playergroup->SwitchAudio(m_curindex);
+	SetPlayState(m_audiolist);
 }
 
 void MainWindow::PlayFullScreen(int index)
@@ -627,8 +647,8 @@ void MainWindow::Slot_StateChanged(QtAV::AVPlayer::State state)
 		m_playergroup->Stop();
 		delete m_playergroup;
 		m_playergroup = NULL;
+		SetStopState();
 	}
-	SetStopState();
 }
 
 //void MainWindow::Slot_MediaStateChanged(QMediaPlayer::State state)
