@@ -4,7 +4,7 @@
 #include <QSlider>
 #include <QSettings>
 #include <QMessageBox>
-#define VERSION "1.6"
+#define VERSION "1.7"
 
 using namespace QtAV;
 MainWindow::MainWindow(QWidget *parent) :
@@ -142,12 +142,9 @@ void MainWindow::InitVideoInterface()
 
 	//从第一个视频文件名里拿录视频的日期，时间。
 	QRegExp rxdt("^Court_(\\d+)-(\\d+)-(\\d+).asf");
-//	Court_1-1-20171017170848966
 	QString strdt;
 	foreach(QString dt, m_videolist) {
 		QString filename = dt.mid(dt.lastIndexOf("/") + 1);
-
-		qDebug()<<filename;
 		if(filename.contains(rxdt)){
 			strdt = rxdt.cap(3);
 			break;
@@ -213,9 +210,10 @@ void MainWindow::on_btnPause_clicked()
 void MainWindow::on_btnStop_clicked()
 {
 	m_playergroup->Stop();
+	SetStopState();
 	delete m_playergroup;
 	m_playergroup = NULL;
-	SetStopState();
+
 }
 
 void MainWindow::updateSlider(qint64 value)
@@ -546,7 +544,7 @@ void MainWindow::ExitFullScreen(int index)
 	if(-1 != m_fullscreenindex) {
 		this->showNormal();
 		ui->stackedWidget->setCurrentIndex(0);
-		m_playergroup->RemoveVideoOutput(index, m_singlevideooutput);
+		if(m_playergroup) m_playergroup->RemoveVideoOutput(index, m_singlevideooutput);
 		m_fullscreenindex = -1;
 	}
 }
