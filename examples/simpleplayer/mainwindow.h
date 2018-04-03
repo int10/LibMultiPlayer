@@ -33,7 +33,7 @@ class MainWindow : public QMainWindow
 public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
-
+	bool IsReady();
 private slots:
 	void on_btnOpen_clicked();
 	void on_btnPlay_clicked();
@@ -91,6 +91,7 @@ private:
 	bool m_showcontrolpanel;
 	QMap<int, int> m_videoposmap;
 	QDateTime m_recordtime;
+	bool m_ready;
 };
 
 #endif // MAINWINDOW_H

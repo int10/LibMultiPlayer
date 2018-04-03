@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	m_singlevideooutput = NULL;
 	m_controlpanel = NULL;
 	m_showcontrolpanel = false;
+	m_ready = true;
 	m_videoout.clear();
 	this->setWindowTitle(QString("Multi player ") + VERSION);
 
@@ -445,7 +446,7 @@ bool MainWindow::PrepareFileList()
 	}
 	if(noaudio == true) {
 		QMessageBox::information(this, "Error", "找不到音频文件！");
-		qApp->quit();	//直接退出程序
+		m_ready = false;
 		return false;
 	}
 
@@ -487,7 +488,7 @@ bool MainWindow::PrepareFileList()
 	}
 	if(novideo == true) {
 		QMessageBox::information(this, "Error", "找不到视频文件！");
-		qApp->quit();	//直接退出程序
+		m_ready = false;
 		return false;
 	}
 
@@ -697,4 +698,9 @@ void MainWindow::Slot_UpdateVolume(int volume)
 {
 	ui->sliVolume->setValue(volume);
 	SetVolume();
+}
+
+bool MainWindow::IsReady()
+{
+	return m_ready;
 }

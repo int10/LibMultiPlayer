@@ -33,6 +33,10 @@ int main(int argc, char *argv[])
     QtAV::Widgets::registerRenderers();
 	QApplication a(argc,argv);
 	MainWindow w;
-	w.show();
-    return a.exec();
+	if(w.IsReady()) {
+		w.show();
+		return a.exec();
+	} else {
+		return 1;
+	}
 }
