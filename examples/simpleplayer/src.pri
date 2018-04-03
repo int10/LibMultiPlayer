@@ -2,13 +2,15 @@ SOURCES += main.cpp \
     PlayerGroup.cpp \
     ConfigXml.cpp   \
     mainwindow.cpp \
-    FormControlPanel.cpp
+    FormControlPanel.cpp    \
+    SingleApplication.cpp
 
 HEADERS += \
     PlayerGroup.h \
     ConfigXml.h \
     mainwindow.h \
-    FormControlPanel.h
+    FormControlPanel.h  \
+    SingleApplication.h
 
 FORMS +=    \
     mainwindow.ui \

@@ -71,5 +71,47 @@ QSlider::handle:Horizontal:disabled{height: 20px;width:10px;border-image: url(im
 QSlider::handle:Horizontal:hover{height: 20px;width:10px;border-image: url(images/SliderHover.png);margin: -8 0px;}
 QSlider::handle:Horizontal:Pressed{height: 20px;width:10px;border-image: url(images/SliderPressed.png);margin: -8 0px;}
 
+FormControlPanel QPushButton#btnPlay{ border-image: url(images/PlayNormalTrans.png); }
+FormControlPanel QPushButton#btnPlay:disabled{ border-image: url(images/PlayDisabledTrans.png); }
+FormControlPanel QPushButton#btnPlay:hover{ border-image: url(images/PlayHover.png); }
+FormControlPanel QPushButton#btnPlay:pressed{ border-image: url(images/PlayPressed.png); }
 
+FormControlPanel QPushButton#btnPause{ border-image: url(images/PauseNormalTrans.png); }
+FormControlPanel QPushButton#btnPause:disabled{ border-image: url(images/PauseDisabledTrans.png); }
+FormControlPanel QPushButton#btnPause:hover{ border-image: url(images/PauseHover.png); }
+FormControlPanel QPushButton#btnPause:pressed{ border-image: url(images/PausePressed.png); }
+
+FormControlPanel QPushButton#btnStop{ border-image: url(images/StopNormalTrans.png); }
+FormControlPanel QPushButton#btnStop:disabled{ border-image: url(images/StopDisabledTrans.png); }
+FormControlPanel QPushButton#btnStop:hover{ border-image: url(images/StopHover.png); }
+FormControlPanel QPushButton#btnStop:pressed{ border-image: url(images/StopPressed.png); }
+
+FormControlPanel QPushButton#btnFb{ border-image: url(images/FbNormalTrans.png); }
+FormControlPanel QPushButton#btnFb:disabled{ border-image: url(images/FbDisabledTrans.png); }
+FormControlPanel QPushButton#btnFb:hover{ border-image: url(images/FbHover.png); }
+FormControlPanel QPushButton#btnFb:pressed{ border-image: url(images/FbPressed.png); }
+
+FormControlPanel QPushButton#btnFf{ border-image: url(images/FfNormalTrans.png); }
+FormControlPanel QPushButton#btnFf:disabled{ border-image: url(images/FfDisabledTrans.png); }
+FormControlPanel QPushButton#btnFf:hover{ border-image: url(images/FfHover.png); }
+FormControlPanel QPushButton#btnFf:pressed{ border-image: url(images/FfPressed.png); }
+
+FormControlPanel QPushButton#btnPre{ border-image: url(images/PreNormalTrans.png); }
+FormControlPanel QPushButton#btnPre:disabled{ border-image: url(images/PreDisabledTrans.png); }
+FormControlPanel QPushButton#btnPre:hover{ border-image: url(images/PreHover.png); }
+FormControlPanel QPushButton#btnPre:pressed{ border-image: url(images/PrePressed.png); }
+
+FormControlPanel QPushButton#btnNext{ border-image: url(images/NextNormalTrans.png); }
+FormControlPanel QPushButton#btnNext:disabled{ border-image: url(images/NextDisabledTrans.png); }
+FormControlPanel QPushButton#btnNext:hover{ border-image: url(images/NextHover.png); }
+FormControlPanel QPushButton#btnNext:pressed{ border-image: url(images/NextPressed.png); }
+
+FormControlPanel QSlider::add-page:Horizontal{background-color: rgb(116,116,116);height:4px;}  
+FormControlPanel QSlider::sub-page:Horizontal{background-color: rgb(0, 160, 234); height:4px;}
+FormControlPanel QSlider::sub-page:Horizontal:disabled{background-color: rgb(116,116,116); height:4px;}
+FormControlPanel QSlider::groove:Horizontal{background:transparent;height:6px;}
+FormControlPanel QSlider::handle:Horizontal{height: 20px;width:10px;border-image: url(images/SliderNormalTrans.png);margin: -8 0px;}
+FormControlPanel QSlider::handle:Horizontal:disabled{height: 20px;width:10px;border-image: url(images/SliderDisabledTrans.png);margin: -8 0px;}
+FormControlPanel QSlider::handle:Horizontal:hover{height: 20px;width:10px;border-image: url(images/SliderHover.png);margin: -8 0px;}
+FormControlPanel QSlider::handle:Horizontal:Pressed{height: 20px;width:10px;border-image: url(images/SliderPressed.png);margin: -8 0px;}
 

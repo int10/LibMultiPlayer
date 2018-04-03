@@ -440,6 +440,7 @@ bool MainWindow::PrepareFileList()
 	}
 	if(noaudio == true) {
 		QMessageBox::information(this, "Error", "找不到音频文件！");
+		qApp->quit();	//直接退出程序
 		return false;
 	}
 
@@ -481,6 +482,7 @@ bool MainWindow::PrepareFileList()
 	}
 	if(novideo == true) {
 		QMessageBox::information(this, "Error", "找不到视频文件！");
+		qApp->quit();	//直接退出程序
 		return false;
 	}
 

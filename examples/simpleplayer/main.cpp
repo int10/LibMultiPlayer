@@ -20,12 +20,18 @@
 #include <QApplication>
 #include <QtAVWidgets>
 #include "mainwindow.h"
+#include "SingleApplication.h"
 
 int main(int argc, char *argv[])
 {
+	//禁止打开多个应用
+	SingleApplication a(argc,argv);
+	if(a.IsRunning()) return 0;
+
     QtAV::Widgets::registerRenderers();
     QApplication a(argc, argv);
 	MainWindow w;
+	a.w = &w;
 	w.show();
     return a.exec();
 }
