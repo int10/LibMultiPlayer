@@ -1707,4 +1707,20 @@ void AVPlayer::setSaturation(int val)
     }
 }
 
+VideoFrame AVPlayer::displayedFrame()
+{
+	if(d->vthread) {
+		return d->vthread->displayedFrame();
+	} else {
+		return VideoFrame();
+	}
+}
+
+void AVPlayer::deliverVideoFrame(VideoFrame&frame)
+{
+	if(d->vthread) {
+		d->vthread->deliverVideoFrame(frame);
+	}
+}
+
 } //namespace QtAV
