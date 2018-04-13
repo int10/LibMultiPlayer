@@ -8,11 +8,3 @@ include($$PROJECTROOT/widgets/libQtAVWidgets.pri)
 preparePaths($$OUT_PWD/../../out)
 
 include(src.pri)
-
-FORMS +=
-
-HEADERS +=
-
-SOURCES +=
-
-RC_FILE = Player.rc

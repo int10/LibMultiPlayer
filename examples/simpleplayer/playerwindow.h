@@ -1,6 +1,6 @@
 /******************************************************************************
     Simple Player:  this file is part of QtAV examples
-    Copyright (C) 2012-2015 Wang Bin <wbsecg1@gmail.com>
+    Copyright (C) 2012-2016 Wang Bin <wbsecg1@gmail.com>
 
 *   This file is part of QtAV
 
@@ -17,16 +17,40 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ******************************************************************************/
-#include <QApplication>
-#include "playerwindow.h"
-#include <QtAVWidgets>
 
-int main(int argc, char *argv[])
+#ifndef PLAYERWINDOW_H
+#define PLAYERWINDOW_H
+
+#include <QWidget>
+#include <QtAV>
+
+QT_BEGIN_NAMESPACE
+class QSlider;
+class QPushButton;
+QT_END_NAMESPACE
+class PlayerWindow : public QWidget
 {
-    QtAV::Widgets::registerRenderers();
-    QApplication a(argc, argv);
-    PlayerWindow player;
-    player.show();
-    player.resize(800, 600);
-    return a.exec();
-}
+    Q_OBJECT
+public:
+    explicit PlayerWindow(QWidget *parent = 0);
+public Q_SLOTS:
+    void openMedia();
+    void seekBySlider(int value);
+    void seekBySlider();
+    void playPause();
+private Q_SLOTS:
+    void updateSlider(qint64 value);
+    void updateSlider();
+    void updateSliderUnit();
+
+private:
+    QtAV::VideoOutput *m_vo;
+    QtAV::AVPlayer *m_player;
+    QSlider *m_slider;
+    QPushButton *m_openBtn;
+    QPushButton *m_playBtn;
+    QPushButton *m_stopBtn;
+    int m_unit;
+};
+
+#endif // PLAYERWINDOW_H

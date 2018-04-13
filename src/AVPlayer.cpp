@@ -925,7 +925,6 @@ bool AVPlayer::setAudioStream(const QString &file, int n)
         path = Internal::Path::toLocal(path);
     if (d->audio_track == n && d->external_audio == path)
         return true;
-	if(n < 0) n = 0;
     const bool audio_changed = d->audio_demuxer.fileName() != path;
     if (path.isEmpty()) {
         if (isLoaded()) {

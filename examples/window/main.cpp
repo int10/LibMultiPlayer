@@ -29,26 +29,11 @@ public:
     {
         player.setRenderer(this);
     }
-	void play(const QString& file) {
+    void play(const QString& file) {
         setTitle(file);
-		//player.setFile(file);
-//		player.setFile("E:/SysFolder/Desktop/Player/part/Court_1-1-20170615171110757.asf");
-//		player.setExternalAudio("E:/SysFolder/Desktop/Player/part/1_20170615171110884.mp3");
-		player.setFile("E:/SysFolder/Desktop/Court_1_20171017/1_20171017170849.mp3");
-//		player.setExternalAudio("E:/SysFolder/Desktop/bb.mp3");
+        player.setFile(file);
         player.play();
     }
-	void play(const QStringList& filelist) {
-		setTitle(filelist.at(1));
-		player.setFile(filelist.at(1));
-		m_audiolist.clear();
-		for(int i = 2; i < filelist.size(); i++) {
-			m_audiolist.append(filelist.at(i));
-		}
-		m_curaudioindex = 0;
-		player.setExternalAudio(m_audiolist.at(m_curaudioindex));
-		player.play();
-	}
 protected:
     virtual void keyPressEvent(QKeyEvent *e) {
         int key = e->key();
@@ -58,32 +43,22 @@ protected:
             player.seekBackward();
         } else if (key == Qt::Key_Right) {
             player.seekForward();
-		} else if (key == Qt::Key_C) {
-			if(m_curaudioindex < m_audiolist.size() - 1) {
-				m_curaudioindex++;
-			} else {
-				m_curaudioindex = 0;
-			}
-			player.setExternalAudio(m_audiolist.at(m_curaudioindex));
-		}
+        }
     }
 private:
     AVPlayer player;
-	QStringList m_audiolist;
-	int m_curaudioindex;
 };
 
 int main(int argc, char *argv[])
 {
     QGuiApplication a(argc, argv);
-//	if (a.arguments().size() < 3) {
-//		//qDebug("./window file");
-//		return 0;
-//	}
+    if (a.arguments().size() < 2) {
+        qDebug("./window file");
+        return 0;
+    }
     PlayerWindow win;
     win.resize(600, 400);
     win.show();
-	//win.play(a.arguments());
-	win.play("");
+    win.play(a.arguments().at(1));
     return a.exec();
 }
